@@ -143,6 +143,12 @@
                     <i class="bi bi-ticket-fill me-2"></i> Support Tickets
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link admin-nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "AdminChat" ? "active" : "")" 
+                   asp-controller="AdminChat" asp-action="Index">
+                    <i class="bi bi-chat-dots-fill me-2"></i> Chat Monitoring
+                </a>
+            </li>
         </ul>
 
         <div class="small text-muted fw-bold mb-2 px-2 text-uppercase" style="letter-spacing: 1px;">Configuration</div>
@@ -154,9 +160,15 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link admin-nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "EmailSettings" ? "active" : "")" 
+                   asp-controller="Admin" asp-action="EmailSettings">
+                    <i class="bi bi-envelope-at-fill me-2"></i> Email Settings
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link admin-nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Settings" && ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" ? "active" : "")" 
                    asp-controller="Admin" asp-action="Settings">
-                    <i class="bi bi-gear-fill me-2"></i> Settings
+                    <i class="bi bi-gear-fill me-2"></i> General Settings
                 </a>
             </li>
             <li class="nav-item mt-2 pt-2 border-top border-secondary border-opacity-25">

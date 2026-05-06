@@ -25,9 +25,12 @@ public static class AppPermissions
         // Support
         "Tickets.View", "Tickets.Reply", "Tickets.Close",
         
+        // Chat Monitoring
+        "Chat.View",
+        
         // System
         "Dashboard.View",
-        "Settings.View", "Settings.Edit",
+        "Settings.View", "Settings.Edit", "Settings.Email",
         "Roles.View", "Roles.Manage"
     };
 }

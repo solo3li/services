@@ -151,6 +151,22 @@ public class AdminController : Controller
         return RedirectToAction(nameof(Settings));
     }
 
+    [Authorize(Policy = "Settings.Email")]
+    public IActionResult EmailSettings()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [Authorize(Policy = "Settings.Email")]
+    [ValidateAntiForgeryToken]
+    public IActionResult UpdateEmailSettings(string host, int port, string username, string password, string fromEmail)
+    {
+        // Mock saving to a settings table
+        TempData["SuccessMessage"] = "Email SMTP settings updated successfully.";
+        return RedirectToAction(nameof(EmailSettings));
+    }
+
     [HttpPost]
     [Authorize(Policy = "Users.ManageRoles")]
     [ValidateAntiForgeryToken]

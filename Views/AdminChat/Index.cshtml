@@ -1,0 +1,53 @@
+@model List<ServicesApp.Controllers.Admin.ChatMonitorViewModel>
+@{
+    ViewData["Title"] = "Chat Monitoring";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 fw-bold">Chat Monitoring</h1>
+            <p class="text-muted">Monitor all active conversations across the platform to ensure safety and compliance</p>
+        </div>
+    </div>
+
+    <div class="glass-card rounded-4 p-4">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th class="border-secondary text-muted small py-3">Participants</th>
+                        <th class="border-secondary text-muted small py-3">Conversation ID</th>
+                        <th class="border-secondary text-muted small py-3">Messages</th>
+                        <th class="border-secondary text-muted small py-3">Last Activity</th>
+                        <th class="border-secondary text-muted small py-3 text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="border-top-0">
+                    @foreach (var chat in Model)
+                    {
+                        <tr>
+                            <td class="border-secondary py-3">
+                                <div class="fw-bold">@chat.User1 <span class="text-primary fw-normal"> & </span> @chat.User2</div>
+                            </td>
+                            <td class="border-secondary py-3 text-muted small">@chat.ConversationKey</td>
+                            <td class="border-secondary py-3">
+                                <span class="badge bg-secondary rounded-pill">@chat.MessageCount</span>
+                            </td>
+                            <td class="border-secondary py-3 text-muted small">@chat.LastMessageAt.ToString("MMM dd, HH:mm")</td>
+                            <td class="border-secondary py-3 text-end">
+                                <a asp-action="Details" asp-route-key="@chat.ConversationKey" class="btn btn-sm btn-outline-primary rounded-pill px-3">View Logs</a>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">No conversations found.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
