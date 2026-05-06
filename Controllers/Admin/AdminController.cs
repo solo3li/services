@@ -1,0 +1,90 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ServicesApp.Data;
+using ServicesApp.Models.Entities;
+using ServicesApp.Services;
+
+namespace ServicesApp.Controllers.Admin;
+
+[Authorize(Roles = "Admin")]
+public class AdminController : Controller
+{
+    private readonly AppDbContext _db;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly KycService _kycService;
+
+    public AdminController(AppDbContext db, UserManager<ApplicationUser> userManager, KycService kycService)
+    {
+        _db = db;
+        _userManager = userManager;
+        _kycService = kycService;
+    }
+
+    public async Task<IActionResult> Dashboard()
+    {
+        ViewBag.TotalUsers = await _db.Users.CountAsync();
+        ViewBag.TotalServices = await _db.Services.CountAsync();
+        ViewBag.TotalOrders = await _db.Orders.CountAsync();
+        ViewBag.PendingKyc = await _db.KycRequests.CountAsync(k => k.Status == ExecutorStatus.Pending);
+        
+        var recentOrders = await _db.Orders
+            .Include(o => o.Service)
+            .Include(o => o.Client)
+            .OrderByDescending(o => o.CreatedAt)
+            .Take(5)
+            .ToListAsync();
+
+        return View("~/Views/Admin/Dashboard.cshtml", recentOrders);
+    }
+
+    public async Task<IActionResult> Kyc()
+    {
+        var pending = await _kycService.GetPendingAsync();
+        return View("~/Views/Admin/Kyc.cshtml", pending);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ApproveKyc(int id)
+    {
+        await _kycService.ApproveAsync(id, _userManager);
+        TempData["SuccessMessage"] = "KYC Application approved successfully.";
+        return RedirectToAction(nameof(Kyc));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RejectKyc(int id, string reason)
+    {
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            TempData["ErrorMessage"] = "Rejection reason is required.";
+            return RedirectToAction(nameof(Kyc));
+        }
+
+        await _kycService.RejectAsync(id, reason);
+        TempData["SuccessMessage"] = "KYC Application rejected.";
+        return RedirectToAction(nameof(Kyc));
+    }
+
+    public async Task<IActionResult> Users()
+    {
+        var users = await _db.Users.OrderByDescending(u => u.CreatedAt).ToListAsync();
+        return View("~/Views/Admin/Users.cshtml", users);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleUserStatus(string id)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user != null)
+        {
+            user.IsActive = !user.IsActive;
+            await _userManager.UpdateAsync(user);
+        }
+        return RedirectToAction(nameof(Users));
+    }
+}

@@ -1,0 +1,72 @@
+@using ServicesApp.Services
+@model List<ConversationSummary>
+@{
+    ViewData["Title"] = "Messages";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+            <h1 class="h3 fw-bold mb-4">Messages</h1>
+
+            @if (!Model.Any())
+            {
+                <div class="glass-panel p-5 text-center rounded-4">
+                    <div class="mb-4">
+                        <i class="bi bi-chat-square-text text-muted" style="font-size: 4rem;"></i>
+                    </div>
+                    <h3 class="h4">No messages yet</h3>
+                    <p class="text-muted">When you contact a freelancer or client, your conversations will appear here.</p>
+                </div>
+            }
+            else
+            {
+                <div class="glass-card rounded-4 overflow-hidden">
+                    <div class="list-group list-group-flush bg-transparent">
+                        @foreach (var convo in Model)
+                        {
+                            <a asp-action="Direct" asp-route-userId="@convo.OtherUserId" class="list-group-item list-group-item-action bg-transparent border-secondary border-opacity-25 p-4 transition-all hover-bg-dark text-white">
+                                <div class="d-flex align-items-center">
+                                    <div class="position-relative me-3">
+                                        @if (!string.IsNullOrEmpty(convo.OtherUserAvatar))
+                                        {
+                                            <img src="@convo.OtherUserAvatar" class="rounded-circle object-fit-cover" width="50" height="50" alt="@convo.OtherUserName">
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white fs-5 fw-bold" style="width: 50px; height: 50px;">
+                                                @(convo.OtherUserName.Substring(0, 1))
+                                            </div>
+                                        }
+                                        @if (convo.UnreadCount > 0)
+                                        {
+                                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-2 border-dark">
+                                                @convo.UnreadCount
+                                                <span class="visually-hidden">unread messages</span>
+                                            </span>
+                                        }
+                                    </div>
+                                    <div class="flex-grow-1 min-w-0">
+                                        <div class="d-flex justify-content-between align-items-baseline mb-1">
+                                            <h6 class="mb-0 fw-bold text-truncate @(convo.UnreadCount > 0 ? "text-white" : "text-light")">@convo.OtherUserName</h6>
+                                            <small class="text-muted ms-2 flex-shrink-0">@convo.LastMessageAt.ToString("MMM dd, HH:mm")</small>
+                                        </div>
+                                        <p class="mb-0 small text-truncate @(convo.UnreadCount > 0 ? "text-white fw-bold" : "text-muted")">
+                                            @convo.LastMessage
+                                        </p>
+                                    </div>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        .hover-bg-dark:hover { background-color: rgba(255,255,255,0.05) !important; }
+    </style>
+}

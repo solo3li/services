@@ -1,0 +1,136 @@
+@using ServicesApp.Models.Entities
+@model List<Service>
+@{
+    ViewData["Title"] = "Search Results";
+    var categories = ViewBag.Categories as List<Category>;
+}
+
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 fw-bold">Search Results</h1>
+            @if (!string.IsNullOrEmpty(ViewBag.Query))
+            {
+                <p class="text-muted">Showing results for "@ViewBag.Query"</p>
+            }
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-12 col-lg-3 mb-4">
+            <div class="glass-card p-4 sticky-top" style="top: 100px;">
+                <h3 class="h5 mb-4">Filters</h3>
+                
+                <form asp-controller="Home" asp-action="Search" method="get">
+                    <input type="hidden" name="q" value="@ViewBag.Query" />
+                    
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-bold">Category</label>
+                        <select name="categoryId" class="form-select bg-dark text-white border-secondary">
+                            <option value="">All Categories</option>
+                            @foreach (var cat in categories!)
+                            {
+                                if (ViewBag.CategoryId != null && (int)ViewBag.CategoryId == cat.Id)
+                                {
+                                    <option value="@cat.Id" selected>@cat.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@cat.Id">@cat.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-bold">Max Price ($)</label>
+                        <input type="number" name="maxPrice" class="form-control bg-dark text-white border-secondary" value="@ViewBag.MaxPrice" placeholder="Any price">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-bold">Sort By</label>
+                        <select name="sort" class="form-select bg-dark text-white border-secondary">
+                            <option value="popular" selected="@(ViewBag.Sort == "popular")">Most Popular</option>
+                            <option value="newest" selected="@(ViewBag.Sort == "newest")">Newest Arrivals</option>
+                            <option value="price_asc" selected="@(ViewBag.Sort == "price_asc")">Price: Low to High</option>
+                            <option value="price_desc" selected="@(ViewBag.Sort == "price_desc")">Price: High to Low</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100 rounded-pill">Apply Filters</button>
+                    <a asp-controller="Home" asp-action="Search" class="btn btn-outline-secondary w-100 rounded-pill mt-2">Clear</a>
+                </form>
+            </div>
+        </div>
+
+        <!-- Results Grid -->
+        <div class="col-12 col-lg-9">
+            @if (!Model.Any())
+            {
+                <div class="glass-panel p-5 text-center rounded-4">
+                    <i class="bi bi-search text-muted mb-3" style="font-size: 3rem;"></i>
+                    <h3 class="h4">No results found</h3>
+                    <p class="text-muted">Try adjusting your search or filters to find what you're looking for.</p>
+                </div>
+            }
+            else
+            {
+                <div class="row g-4">
+                    @foreach (var service in Model)
+                    {
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <!-- Service Card (same as home page) -->
+                            <div class="glass-card service-card h-100 d-flex flex-column">
+                                <div class="service-img-wrapper position-relative" style="height: 180px; background: linear-gradient(45deg, #1e1e2d, #2d2d3f); border-radius: 12px 12px 0 0; overflow: hidden;">
+                                    @if (!string.IsNullOrEmpty(service.Thumbnail))
+                                    {
+                                        <img src="@service.Thumbnail" class="w-100 h-100 object-fit-cover" alt="@service.Title">
+                                    }
+                                    else
+                                    {
+                                        <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted">
+                                            <i class="bi bi-image" style="font-size: 3rem;"></i>
+                                        </div>
+                                    }
+                                    <span class="badge bg-dark position-absolute top-0 end-0 m-2">@service.Category.Name</span>
+                                </div>
+                                
+                                <div class="p-3 flex-grow-1 d-flex flex-column">
+                                    <div class="d-flex align-items-center mb-2">
+                                        @if (!string.IsNullOrEmpty(service.Executor.Avatar))
+                                        {
+                                            <img src="@service.Executor.Avatar" class="rounded-circle me-2" width="24" height="24" alt="">
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2 text-white" style="width: 24px; height: 24px; font-size: 10px;">
+                                                @(service.Executor.FullName.Substring(0, 1))
+                                            </div>
+                                        }
+                                        <span class="text-muted small text-truncate">@service.Executor.FullName</span>
+                                    </div>
+                                    
+                                    <a asp-controller="Services" asp-action="Details" asp-route-id="@service.Id" class="text-white text-decoration-none">
+                                        <h3 class="h6 mb-2 service-title" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">@service.Title</h3>
+                                    </a>
+                                    
+                                    <div class="mt-auto d-flex justify-content-between align-items-center pt-3 border-top border-secondary border-opacity-25">
+                                        <div class="text-warning small fw-bold">
+                                            <i class="bi bi-star-fill"></i> @service.Rating.ToString("0.0") 
+                                            <span class="text-muted fw-normal">(@service.ReviewCount)</span>
+                                        </div>
+                                        <div class="fw-bold text-end">
+                                            <span class="text-muted small fw-normal">STARTING AT</span><br>
+                                            $@service.Price.ToString("0.00")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

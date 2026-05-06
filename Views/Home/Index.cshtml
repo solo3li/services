@@ -1,8 +1,127 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@using ServicesApp.Models.ViewModels
+@model HomeViewModel
+@{
+    ViewData["Title"] = "Find the perfect freelance services";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!-- Hero Section -->
+<div class="hero-section text-center py-5 mb-5 rounded-4 position-relative overflow-hidden glow-bg">
+    <div class="container position-relative z-1 py-5">
+        <h1 class="display-4 fw-bold text-white mb-4">Find the perfect <span class="text-gradient">freelance services</span> for your business</h1>
+        <p class="lead text-light mb-5">Join thousands of businesses who use our platform to get work done.</p>
+        
+        <div class="search-box mx-auto" style="max-width: 600px;">
+            <form asp-controller="Home" asp-action="Search" method="get" class="d-flex glass-panel p-2 rounded-pill">
+                <input type="text" name="q" class="form-control border-0 bg-transparent text-white ms-3" placeholder="What service are you looking for today?">
+                <button type="submit" class="btn btn-primary rounded-pill px-4 ms-2">Search</button>
+            </form>
+        </div>
+        
+        <div class="popular-tags mt-4">
+            <span class="text-muted small me-2">Popular:</span>
+            <a href="/Home/Search?q=website" class="badge rounded-pill glass-badge text-decoration-none me-1">Website Design</a>
+            <a href="/Home/Search?q=wordpress" class="badge rounded-pill glass-badge text-decoration-none me-1">WordPress</a>
+            <a href="/Home/Search?q=logo" class="badge rounded-pill glass-badge text-decoration-none me-1">Logo Design</a>
+            <a href="/Home/Search?q=video" class="badge rounded-pill glass-badge text-decoration-none">Video Editing</a>
+        </div>
+    </div>
+</div>
+
+<!-- Categories Grid -->
+<div class="container mb-5">
+    <h2 class="h3 fw-bold mb-4">Explore Categories</h2>
+    <div class="row g-4">
+        @foreach (var category in Model.Categories)
+        {
+            <div class="col-6 col-md-4 col-lg-3">
+                <a asp-controller="Home" asp-action="Search" asp-route-categoryId="@category.Id" class="text-decoration-none">
+                    <div class="glass-card text-center p-4 h-100 category-card transition-all">
+                        <div class="display-4 mb-3">@category.Icon</div>
+                        <h3 class="h6 text-white mb-0">@category.Name</h3>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Featured Services -->
+<div class="container mb-5">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <h2 class="h3 fw-bold mb-0">Featured Services</h2>
+        <a asp-controller="Home" asp-action="Search" class="text-primary text-decoration-none fw-medium">View All <i class="bi bi-arrow-right"></i></a>
+    </div>
+    
+    <div class="row g-4">
+        @foreach (var service in Model.FeaturedServices)
+        {
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="glass-card service-card h-100 d-flex flex-column">
+                    <div class="service-img-wrapper position-relative" style="height: 200px; background: linear-gradient(45deg, #1e1e2d, #2d2d3f); border-radius: 12px 12px 0 0; overflow: hidden;">
+                        @if (!string.IsNullOrEmpty(service.Thumbnail))
+                        {
+                            <img src="@service.Thumbnail" class="w-100 h-100 object-fit-cover" alt="@service.Title">
+                        }
+                        else
+                        {
+                            <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted">
+                                <i class="bi bi-image" style="font-size: 3rem;"></i>
+                            </div>
+                        }
+                        <span class="badge bg-dark position-absolute top-0 end-0 m-2">@service.Category.Name</span>
+                    </div>
+                    
+                    <div class="p-3 flex-grow-1 d-flex flex-column">
+                        <div class="d-flex align-items-center mb-2">
+                            @if (!string.IsNullOrEmpty(service.Executor.Avatar))
+                            {
+                                <img src="@service.Executor.Avatar" class="rounded-circle me-2" width="24" height="24" alt="">
+                            }
+                            else
+                            {
+                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2 text-white" style="width: 24px; height: 24px; font-size: 10px;">
+                                    @(service.Executor.FullName.Substring(0, 1))
+                                </div>
+                            }
+                            <span class="text-muted small">@service.Executor.FullName</span>
+                        </div>
+                        
+                        <a asp-controller="Services" asp-action="Details" asp-route-id="@service.Id" class="text-white text-decoration-none">
+                            <h3 class="h6 mb-2 service-title" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">@service.Title</h3>
+                        </a>
+                        
+                        <div class="mt-auto d-flex justify-content-between align-items-center pt-3 border-top border-secondary border-opacity-25">
+                            <div class="text-warning small fw-bold">
+                                <i class="bi bi-star-fill"></i> @service.Rating.ToString("0.0") 
+                                <span class="text-muted fw-normal">(@service.ReviewCount)</span>
+                            </div>
+                            <div class="fw-bold">
+                                <span class="text-muted small fw-normal">STARTING AT</span><br>
+                                $@service.Price.ToString("0.00")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- CTA Section -->
+<div class="container mb-5">
+    <div class="glass-panel p-5 rounded-4 text-center position-relative overflow-hidden">
+        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: radial-gradient(circle at center, rgba(124, 58, 237, 0.2) 0%, transparent 70%); z-index: 0;"></div>
+        <div class="position-relative z-1">
+            <h2 class="h2 fw-bold text-white mb-3">Ready to start your project?</h2>
+            <p class="lead text-light mb-4">Connect with talented freelancers and get your work done fast.</p>
+            @if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                <a asp-controller="Auth" asp-action="Register" class="btn btn-primary btn-lg rounded-pill px-5">Join Now</a>
+            }
+            else
+            {
+                <a asp-controller="Home" asp-action="Search" class="btn btn-primary btn-lg rounded-pill px-5">Browse Services</a>
+            }
+        </div>
+    </div>
 </div>

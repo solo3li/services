@@ -1,0 +1,86 @@
+@using ServicesApp.Controllers
+@model KycSubmitViewModel
+@{
+    ViewData["Title"] = "Submit KYC Application";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+            <h1 class="h3 fw-bold mb-4">Become an Executor</h1>
+            <p class="text-muted mb-5">Please provide the following information to verify your identity and skills. This helps us maintain a secure and high-quality marketplace.</p>
+
+            <form asp-action="Submit" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger bg-danger bg-opacity-10 border-danger border-opacity-25 text-danger rounded-3"></div>
+
+                <div class="glass-card p-4 p-md-5 mb-4">
+                    <h3 class="h5 mb-4 border-bottom border-secondary border-opacity-25 pb-3">1. Professional Information</h3>
+                    
+                    <div class="mb-4">
+                        <label asp-for="Bio" class="form-label text-muted small fw-bold">Professional Bio <span class="text-danger">*</span></label>
+                        <textarea asp-for="Bio" class="form-control bg-dark text-white border-secondary" rows="5" placeholder="Tell clients about your experience, education, and what makes you great... (min 50 chars)"></textarea>
+                        <span asp-validation-for="Bio" class="text-danger small mt-1 d-block"></span>
+                        <div class="form-text text-muted mt-2">This will be displayed on your public profile.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Skills" class="form-label text-muted small fw-bold">Skills <span class="text-danger">*</span></label>
+                        <input asp-for="Skills" class="form-control bg-dark text-white border-secondary" placeholder="e.g. UI/UX Design, React, Python, Video Editing">
+                        <span asp-validation-for="Skills" class="text-danger small mt-1 d-block"></span>
+                        <div class="form-text text-muted mt-2">Comma separated list of your top skills.</div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-4 p-md-5 mb-4">
+                    <h3 class="h5 mb-4 border-bottom border-secondary border-opacity-25 pb-3">2. Identity Verification</h3>
+                    
+                    <div class="row g-4">
+                        <div class="col-12 col-md-6">
+                            <label asp-for="IdCardFile" class="form-label text-muted small fw-bold">ID Card / Passport</label>
+                            <div class="file-upload-wrapper text-center p-4 border border-secondary border-dashed rounded-3 bg-dark bg-opacity-50 transition-all hover-bg-dark">
+                                <i class="bi bi-person-vcard text-muted display-4 mb-3 d-block"></i>
+                                <input asp-for="IdCardFile" class="form-control form-control-sm bg-dark text-white border-secondary" type="file" accept="image/*">
+                                <div class="form-text mt-2">Clear photo of your official ID. Max 5MB.</div>
+                            </div>
+                            <span asp-validation-for="IdCardFile" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                        
+                        <div class="col-12 col-md-6">
+                            <label asp-for="SelfieFile" class="form-label text-muted small fw-bold">Selfie holding ID</label>
+                            <div class="file-upload-wrapper text-center p-4 border border-secondary border-dashed rounded-3 bg-dark bg-opacity-50 transition-all hover-bg-dark">
+                                <i class="bi bi-camera text-muted display-4 mb-3 d-block"></i>
+                                <input asp-for="SelfieFile" class="form-control form-control-sm bg-dark text-white border-secondary" type="file" accept="image/*">
+                                <div class="form-text mt-2">Clear selfie showing your face and the ID. Max 5MB.</div>
+                            </div>
+                            <span asp-validation-for="SelfieFile" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-4 p-md-5 mb-5">
+                    <h3 class="h5 mb-4 border-bottom border-secondary border-opacity-25 pb-3">3. Payment Information</h3>
+                    
+                    <div class="mb-4">
+                        <label asp-for="PaymentInfo" class="form-label text-muted small fw-bold">Withdrawal Account Details <span class="text-danger">*</span></label>
+                        <textarea asp-for="PaymentInfo" class="form-control bg-dark text-white border-secondary" rows="3" placeholder="Bank Name: ...&#10;Account Holder: ...&#10;IBAN/Account Number: ..."></textarea>
+                        <span asp-validation-for="PaymentInfo" class="text-danger small mt-1 d-block"></span>
+                        <div class="form-text text-muted mt-2">Where should we send your earnings? This information is kept secure.</div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <a asp-action="Status" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 glow-btn">Submit Application</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <style>
+        .border-dashed { border-style: dashed !important; }
+        .hover-bg-dark:hover { background-color: rgba(0,0,0,0.5) !important; cursor: pointer; }
+    </style>
+}

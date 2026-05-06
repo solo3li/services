@@ -1,0 +1,67 @@
+@using ServicesApp.Models.Entities
+@model List<SupportTicket>
+@{
+    ViewData["Title"] = "Support Tickets";
+}
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="h3 fw-bold mb-1">Support Tickets</h1>
+            <p class="text-muted mb-0">Get help with your account or orders</p>
+        </div>
+        <a asp-action="Open" class="btn btn-primary rounded-pill px-4 glow-btn"><i class="bi bi-plus-lg me-2"></i> Open New Ticket</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="glass-panel p-5 text-center rounded-4">
+            <div class="mb-4">
+                <i class="bi bi-life-preserver text-muted" style="font-size: 4rem;"></i>
+            </div>
+            <h3 class="h4">No support tickets</h3>
+            <p class="text-muted mb-4">You haven't opened any support tickets yet. If you need help, feel free to contact us.</p>
+        </div>
+    }
+    else
+    {
+        <div class="glass-card rounded-4 overflow-hidden">
+            <div class="list-group list-group-flush bg-transparent">
+                @foreach (var ticket in Model)
+                {
+                    <a asp-action="Details" asp-route-id="@ticket.Id" class="list-group-item list-group-item-action bg-transparent border-secondary border-opacity-25 p-4 transition-all hover-bg-dark text-white">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="mb-0 fw-bold h6">@ticket.Subject</h5>
+                            @{
+                                var badgeClass = ticket.Status switch
+                                {
+                                    TicketStatus.Open => "bg-warning text-dark",
+                                    TicketStatus.InProgress => "bg-info text-dark",
+                                    TicketStatus.Closed => "bg-secondary",
+                                    _ => "bg-secondary"
+                                };
+                            }
+                            <span class="badge @badgeClass rounded-pill">@ticket.Status</span>
+                        </div>
+                        <div class="d-flex justify-content-between text-muted small">
+                            <div>
+                                <span class="me-3"><i class="bi bi-tag me-1"></i> @ticket.Category</span>
+                                @if (ticket.RelatedOrderId.HasValue)
+                                {
+                                    <span class="me-3"><i class="bi bi-bag me-1"></i> Order #@ticket.RelatedOrderId</span>
+                                }
+                            </div>
+                            <span>@ticket.CreatedAt.ToString("MMM dd, yyyy")</span>
+                        </div>
+                    </a>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <style>
+        .hover-bg-dark:hover { background-color: rgba(255,255,255,0.05) !important; }
+    </style>
+}

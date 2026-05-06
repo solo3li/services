@@ -1,0 +1,155 @@
+@using ServicesApp.Models.Entities
+@model List<Order>
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 fw-bold">Admin Dashboard</h1>
+            <p class="text-muted">Platform overview and statistics</p>
+        </div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="row g-4 mb-5">
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="glass-card p-4 h-100 border-primary border-opacity-50" style="border-left: 4px solid #7c3aed !important;">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted small text-uppercase fw-bold mb-1">Total Users</p>
+                        <h3 class="fw-bold mb-0">@ViewBag.TotalUsers</h3>
+                    </div>
+                    <div class="bg-primary bg-opacity-25 p-3 rounded-3 text-primary">
+                        <i class="bi bi-people-fill fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="glass-card p-4 h-100 border-info border-opacity-50" style="border-left: 4px solid #06b6d4 !important;">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted small text-uppercase fw-bold mb-1">Active Services</p>
+                        <h3 class="fw-bold mb-0">@ViewBag.TotalServices</h3>
+                    </div>
+                    <div class="bg-info bg-opacity-25 p-3 rounded-3 text-info">
+                        <i class="bi bi-grid-fill fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="glass-card p-4 h-100 border-success border-opacity-50" style="border-left: 4px solid #10b981 !important;">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted small text-uppercase fw-bold mb-1">Total Orders</p>
+                        <h3 class="fw-bold mb-0">@ViewBag.TotalOrders</h3>
+                    </div>
+                    <div class="bg-success bg-opacity-25 p-3 rounded-3 text-success">
+                        <i class="bi bi-cart-fill fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="glass-card p-4 h-100 border-warning border-opacity-50" style="border-left: 4px solid #f59e0b !important;">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted small text-uppercase fw-bold mb-1">Pending KYC</p>
+                        <h3 class="fw-bold mb-0">@ViewBag.PendingKyc</h3>
+                    </div>
+                    <div class="bg-warning bg-opacity-25 p-3 rounded-3 text-warning">
+                        <i class="bi bi-person-vcard fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Recent Orders -->
+        <div class="col-12 col-xl-8 mb-4">
+            <div class="glass-card rounded-4 p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0">Recent Orders</h5>
+                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill">View All</a>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0 align-middle">
+                        <thead>
+                            <tr>
+                                <th class="border-secondary text-muted small">ID</th>
+                                <th class="border-secondary text-muted small">Service</th>
+                                <th class="border-secondary text-muted small">Client</th>
+                                <th class="border-secondary text-muted small">Amount</th>
+                                <th class="border-secondary text-muted small">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="border-top-0">
+                            @foreach (var order in Model)
+                            {
+                                <tr>
+                                    <td class="border-secondary py-3">#@order.Id</td>
+                                    <td class="border-secondary py-3 fw-bold text-truncate" style="max-width: 200px;">@order.Service.Title</td>
+                                    <td class="border-secondary py-3">@order.Client.FullName</td>
+                                    <td class="border-secondary py-3 fw-bold text-success">$@order.TotalPrice.ToString("0.00")</td>
+                                    <td class="border-secondary py-3">
+                                        @{
+                                            var badgeClass = order.Status switch
+                                            {
+                                                OrderStatus.Pending => "bg-warning text-dark",
+                                                OrderStatus.InProgress => "bg-info text-dark",
+                                                OrderStatus.Delivered => "bg-primary",
+                                                OrderStatus.Completed => "bg-success",
+                                                OrderStatus.Cancelled => "bg-danger",
+                                                _ => "bg-secondary"
+                                            };
+                                        }
+                                        <span class="badge @badgeClass rounded-pill">@order.Status</span>
+                                    </td>
+                                </tr>
+                            }
+                            @if (!Model.Any())
+                            {
+                                <tr>
+                                    <td colspan="5" class="border-secondary text-center py-4 text-muted">No recent orders found.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="col-12 col-xl-4 mb-4">
+            <div class="glass-card rounded-4 p-4 h-100">
+                <h5 class="fw-bold mb-4">Quick Actions</h5>
+                
+                <div class="d-grid gap-3">
+                    <a asp-action="Kyc" class="btn btn-outline-warning text-start p-3 rounded-3 d-flex align-items-center">
+                        <i class="bi bi-person-check fs-4 me-3"></i>
+                        <div>
+                            <div class="fw-bold">Review KYC</div>
+                            <div class="small">Approve or reject applications</div>
+                        </div>
+                    </a>
+                    
+                    <a asp-action="Users" class="btn btn-outline-primary text-start p-3 rounded-3 d-flex align-items-center">
+                        <i class="bi bi-people fs-4 me-3"></i>
+                        <div>
+                            <div class="fw-bold">Manage Users</div>
+                            <div class="small">Suspend or modify accounts</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

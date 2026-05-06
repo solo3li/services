@@ -1,0 +1,61 @@
+@using ServicesApp.Models.ViewModels
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Log in";
+    Layout = "_Layout";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-5">
+            <div class="glass-panel p-5 rounded-4 shadow-lg position-relative overflow-hidden">
+                <div class="position-absolute top-0 start-50 translate-middle w-75 h-50 rounded-circle" style="background: radial-gradient(circle, rgba(124, 58, 237, 0.3) 0%, transparent 70%); filter: blur(40px); z-index: 0;"></div>
+                
+                <div class="position-relative z-1">
+                    <div class="text-center mb-5">
+                        <h1 class="h3 fw-bold mb-2">Welcome Back</h1>
+                        <p class="text-muted">Enter your credentials to access your account</p>
+                    </div>
+
+                    <form asp-controller="Auth" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
+                        
+                        <div class="form-floating mb-3">
+                            <input asp-for="Email" class="form-control bg-dark text-white border-secondary" placeholder="name@example.com" autocomplete="username" aria-required="true" />
+                            <label asp-for="Email" class="text-muted">Email address</label>
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="form-floating mb-4">
+                            <input asp-for="Password" class="form-control bg-dark text-white border-secondary" placeholder="password" autocomplete="current-password" aria-required="true" />
+                            <label asp-for="Password" class="text-muted">Password</label>
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input bg-dark border-secondary" asp-for="RememberMe" />
+                                <label class="form-check-label text-muted small" asp-for="RememberMe">
+                                    Remember me
+                                </label>
+                            </div>
+                            <a href="#" class="text-primary small text-decoration-none fw-medium">Forgot password?</a>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold glow-btn mb-4">Log in to your account</button>
+                    </form>
+                    
+                    <div class="text-center mt-4">
+                        <p class="text-muted small">
+                            Don't have an account? <a asp-controller="Auth" asp-action="Register" class="text-primary text-decoration-none fw-bold">Sign up</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

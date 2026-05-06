@@ -1,0 +1,105 @@
+@using ServicesApp.Models.Entities
+@model List<Order>
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="h3 fw-bold mb-1">My Orders</h1>
+            <p class="text-muted mb-0">Track and manage your purchases</p>
+        </div>
+        <a asp-controller="Home" asp-action="Search" class="btn btn-outline-primary rounded-pill px-4">Find More Services</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="glass-panel p-5 text-center rounded-4">
+            <div class="mb-4">
+                <i class="bi bi-bag-x text-muted" style="font-size: 4rem;"></i>
+            </div>
+            <h3 class="h4">No orders yet</h3>
+            <p class="text-muted mb-4">You haven't placed any orders. Start exploring services to get your projects done.</p>
+            <a asp-controller="Home" asp-action="Search" class="btn btn-primary rounded-pill px-4">Browse Services</a>
+        </div>
+    }
+    else
+    {
+        <div class="glass-card rounded-4 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0 align-middle">
+                    <thead class="bg-dark bg-opacity-75">
+                        <tr>
+                            <th class="border-secondary py-3 px-4">Service</th>
+                            <th class="border-secondary py-3">Executor</th>
+                            <th class="border-secondary py-3">Date</th>
+                            <th class="border-secondary py-3">Price</th>
+                            <th class="border-secondary py-3">Status</th>
+                            <th class="border-secondary py-3 text-end px-4">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="border-top-0">
+                        @foreach (var order in Model)
+                        {
+                            <tr>
+                                <td class="border-secondary py-3 px-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-3 overflow-hidden me-3 flex-shrink-0" style="width: 48px; height: 48px; background: #1e1e2d;">
+                                            @if (!string.IsNullOrEmpty(order.Service.Thumbnail))
+                                            {
+                                                <img src="@order.Service.Thumbnail" class="w-100 h-100 object-fit-cover" alt="">
+                                            }
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-truncate" style="max-width: 200px;" title="@order.Service.Title">@order.Service.Title</div>
+                                            <div class="text-muted small">Order #@order.Id</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="border-secondary py-3">
+                                    <div class="d-flex align-items-center">
+                                        @if (!string.IsNullOrEmpty(order.Executor?.Avatar))
+                                        {
+                                            <img src="@order.Executor.Avatar" class="rounded-circle me-2" width="24" height="24" alt="">
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2 text-white" style="width: 24px; height: 24px; font-size: 10px;">
+                                                @(order.Executor?.FullName.Substring(0, 1) ?? "U")
+                                            </div>
+                                        }
+                                        <span class="small">@order.Executor?.FullName</span>
+                                    </div>
+                                </td>
+                                <td class="border-secondary py-3 text-muted small">
+                                    @order.CreatedAt.ToString("MMM dd, yyyy")
+                                </td>
+                                <td class="border-secondary py-3 fw-bold">
+                                    $@order.TotalPrice.ToString("0.00")
+                                </td>
+                                <td class="border-secondary py-3">
+                                    @{
+                                        var badgeClass = order.Status switch
+                                        {
+                                            OrderStatus.Pending => "bg-warning text-dark",
+                                            OrderStatus.InProgress => "bg-info text-dark",
+                                            OrderStatus.Delivered => "bg-primary",
+                                            OrderStatus.Completed => "bg-success",
+                                            OrderStatus.Cancelled => "bg-danger",
+                                            _ => "bg-secondary"
+                                        };
+                                    }
+                                    <span class="badge @badgeClass rounded-pill">@order.Status</span>
+                                </td>
+                                <td class="border-secondary py-3 text-end px-4">
+                                    <a asp-action="Tracking" asp-route-id="@order.Id" class="btn btn-outline-light btn-sm rounded-pill">Track Order</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

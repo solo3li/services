@@ -1,0 +1,65 @@
+@{
+    ViewData["Title"] = "Secure Checkout";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="glass-card p-4 p-md-5 rounded-4 position-relative overflow-hidden">
+                <div class="position-absolute top-0 start-50 translate-middle w-75 h-50 rounded-circle" style="background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%); filter: blur(40px); z-index: 0;"></div>
+                
+                <div class="position-relative z-1 text-center mb-5">
+                    <h1 class="h3 fw-bold mb-2">Secure Checkout</h1>
+                    <p class="text-muted">Complete your payment to start the order</p>
+                </div>
+
+                <div class="bg-dark bg-opacity-50 p-4 rounded-3 mb-4 text-center">
+                    <span class="text-muted small text-uppercase fw-bold d-block mb-1">Total to Pay</span>
+                    <span class="display-5 fw-bold text-success">$@ViewBag.Amount.ToString("0.00")</span>
+                </div>
+
+                <!-- Paymob Stub UI -->
+                <div class="border border-secondary border-opacity-50 rounded-4 p-4 mb-4 bg-dark bg-opacity-50">
+                    <div class="d-flex align-items-center mb-4">
+                        <i class="bi bi-credit-card text-primary fs-3 me-3"></i>
+                        <div>
+                            <h4 class="h6 fw-bold mb-0">Card Payment</h4>
+                            <span class="small text-muted">Powered by Paymob (Stub Mode)</span>
+                        </div>
+                    </div>
+                    
+                    <form asp-action="ProcessStubPayment" method="post">
+                        <input type="hidden" name="orderId" value="@ViewBag.OrderId" />
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">Card Number</label>
+                            <input type="text" class="form-control bg-dark text-white border-secondary" placeholder="0000 0000 0000 0000" disabled>
+                        </div>
+                        <div class="row g-3 mb-4">
+                            <div class="col-6">
+                                <label class="form-label text-muted small">Expiry</label>
+                                <input type="text" class="form-control bg-dark text-white border-secondary" placeholder="MM/YY" disabled>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-muted small">CVV</label>
+                                <input type="text" class="form-control bg-dark text-white border-secondary" placeholder="123" disabled>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-warning py-2 px-3 small border-warning border-opacity-25 bg-warning bg-opacity-10 text-warning">
+                            <i class="bi bi-info-circle me-1"></i> This is a stub checkout. Clicking pay will simulate a successful transaction.
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100 py-3 rounded-pill fw-bold glow-btn mt-2">
+                            Pay $@ViewBag.Amount.ToString("0.00") Securely
+                        </button>
+                    </form>
+                </div>
+
+                <div class="text-center text-muted small">
+                    <i class="bi bi-shield-lock me-1"></i> Payments are secure and encrypted.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

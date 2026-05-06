@@ -1,0 +1,32 @@
+@using ServicesApp.Models.Entities
+@model List<Category>
+@{
+    ViewData["Title"] = "All Categories";
+}
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold mb-3">Explore All Categories</h1>
+        <p class="lead text-muted">Find the perfect freelancer for your next project</p>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var category in Model)
+        {
+            <div class="col-12 col-md-6 col-lg-4">
+                <a asp-controller="Home" asp-action="Search" asp-route-categoryId="@category.Id" class="text-decoration-none">
+                    <div class="glass-card p-4 h-100 category-card transition-all d-flex align-items-center">
+                        <div class="display-4 me-4">@category.Icon</div>
+                        <div>
+                            <h3 class="h5 text-white mb-1">@category.Name</h3>
+                            <p class="text-muted small mb-0">@category.Description</p>
+                            <div class="mt-2 text-primary small fw-bold">
+                                @category.Services.Count(s => s.IsActive) Services Available <i class="bi bi-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+</div>

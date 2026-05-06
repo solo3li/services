@@ -1,0 +1,145 @@
+@using ServicesApp.Models.Entities
+@model Service
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="container py-5">
+    <div class="row g-5">
+        <!-- Service Details -->
+        <div class="col-12 col-lg-8">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-muted text-decoration-none">Home</a></li>
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Search" asp-route-categoryId="@Model.CategoryId" class="text-muted text-decoration-none">@Model.Category.Name</a></li>
+                    <li class="breadcrumb-item active text-white" aria-current="page">Service</li>
+                </ol>
+            </nav>
+
+            <h1 class="h2 fw-bold mb-4">@Model.Title</h1>
+            
+            <div class="d-flex align-items-center mb-4 pb-4 border-bottom border-secondary border-opacity-25">
+                @if (!string.IsNullOrEmpty(Model.Executor.Avatar))
+                {
+                    <img src="@Model.Executor.Avatar" class="rounded-circle me-3" width="48" height="48" alt="@Model.Executor.FullName">
+                }
+                else
+                {
+                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3 text-white fs-5 fw-bold" style="width: 48px; height: 48px;">
+                        @(Model.Executor.FullName.Substring(0, 1))
+                    </div>
+                }
+                
+                <div>
+                    <h5 class="mb-1 text-white">@Model.Executor.FullName</h5>
+                    <div class="d-flex align-items-center text-muted small">
+                        <span class="text-warning fw-bold me-1"><i class="bi bi-star-fill"></i> @Model.Rating.ToString("0.0")</span>
+                        <span>(@Model.ReviewCount reviews)</span>
+                        <span class="mx-2">&bull;</span>
+                        <span>@Model.OrderCount orders completed</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thumbnail -->
+            <div class="service-img-wrapper mb-5 rounded-4 overflow-hidden position-relative shadow-lg" style="background: linear-gradient(45deg, #1e1e2d, #2d2d3f); padding-top: 56.25%;">
+                @if (!string.IsNullOrEmpty(Model.Thumbnail))
+                {
+                    <img src="@Model.Thumbnail" class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover" alt="@Model.Title">
+                }
+                else
+                {
+                    <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center text-muted">
+                        <i class="bi bi-image" style="font-size: 5rem;"></i>
+                    </div>
+                }
+            </div>
+
+            <!-- Description -->
+            <h3 class="h4 fw-bold mb-3">About This Service</h3>
+            <div class="glass-card p-4 p-md-5 mb-5 text-light lh-lg" style="white-space: pre-line;">
+                @Model.Description
+            </div>
+
+            <!-- Executor Bio -->
+            <h3 class="h4 fw-bold mb-3">About The Freelancer</h3>
+            <div class="glass-card p-4 p-md-5 d-flex align-items-start">
+                @if (!string.IsNullOrEmpty(Model.Executor.Avatar))
+                {
+                    <img src="@Model.Executor.Avatar" class="rounded-circle me-4" width="80" height="80" alt="@Model.Executor.FullName">
+                }
+                else
+                {
+                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-4 text-white display-6 fw-bold flex-shrink-0" style="width: 80px; height: 80px;">
+                        @(Model.Executor.FullName.Substring(0, 1))
+                    </div>
+                }
+                
+                <div>
+                    <h4 class="h5 mb-2">@Model.Executor.FullName</h4>
+                    <p class="text-muted mb-3" style="white-space: pre-line;">@Model.Executor.Bio</p>
+                    @if (User.Identity?.IsAuthenticated == true && User.Identity.Name != Model.Executor.UserName)
+                    {
+                        <a asp-controller="Chat" asp-action="Direct" asp-route-userId="@Model.ExecutorId" class="btn btn-outline-light rounded-pill px-4 btn-sm">Contact Me</a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar / Order Panel -->
+        <div class="col-12 col-lg-4">
+            <div class="glass-panel p-4 rounded-4 sticky-top" style="top: 100px;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="h4 fw-bold mb-0">Total</h3>
+                    <div class="h3 fw-bold text-white mb-0">$@Model.Price.ToString("0.00")</div>
+                </div>
+
+                <div class="d-flex mb-4">
+                    <div class="me-4">
+                        <i class="bi bi-clock me-2 text-primary"></i> <span class="fw-bold">@Model.DeliveryDays</span> Days Delivery
+                    </div>
+                    <div>
+                        <i class="bi bi-arrow-repeat me-2 text-primary"></i> <span class="fw-bold">1</span> Revision
+                    </div>
+                </div>
+                
+                <ul class="list-unstyled mb-4 text-light">
+                    <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i> High Quality Delivery</li>
+                    <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i> Source Files Included</li>
+                    <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i> Commercial Use</li>
+                </ul>
+
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    if (User.Identity.Name == Model.Executor.UserName)
+                    {
+                        <div class="alert alert-info bg-info bg-opacity-10 text-info border-info border-opacity-25 rounded-3 text-center mb-0">
+                            This is your service.
+                        </div>
+                    }
+                    else
+                    {
+                        <a asp-controller="Orders" asp-action="Create" asp-route-serviceId="@Model.Id" class="btn btn-primary w-100 py-3 rounded-pill fw-bold glow-btn fs-5">Continue ($@Model.Price.ToString("0.00"))</a>
+                    }
+                }
+                else
+                {
+                    <a asp-controller="Auth" asp-action="Login" asp-route-returnurl="/Services/Details/@Model.Id" class="btn btn-primary w-100 py-3 rounded-pill fw-bold glow-btn fs-5">Sign in to Order</a>
+                }
+            </div>
+            
+            @if (!string.IsNullOrEmpty(Model.Tags))
+            {
+                <div class="mt-4">
+                    <h5 class="h6 text-muted mb-3">Related Tags</h5>
+                    <div>
+                        @foreach (var tag in Model.Tags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            <a href="/Home/Search?q=@tag.Trim()" class="badge rounded-pill glass-badge text-decoration-none me-1 mb-2 px-3 py-2">@tag.Trim()</a>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

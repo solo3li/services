@@ -1,0 +1,174 @@
+@using ServicesApp.Models.Entities
+@model List<Message>
+@{
+    ViewData["Title"] = "Chat with " + ViewBag.OtherUserName;
+}
+
+<div class="container py-4 h-100">
+    <div class="row justify-content-center h-100">
+        <div class="col-12 col-lg-8 d-flex flex-column" style="height: 80vh;">
+            
+            <!-- Chat Header -->
+            <div class="glass-panel p-3 rounded-top-4 border-bottom border-secondary border-opacity-25 d-flex align-items-center">
+                <a asp-action="Conversations" class="btn btn-sm btn-link text-white me-2"><i class="bi bi-arrow-left"></i></a>
+                
+                <div class="position-relative me-3">
+                    @if (!string.IsNullOrEmpty(ViewBag.OtherUserAvatar))
+                    {
+                        <img src="@ViewBag.OtherUserAvatar" class="rounded-circle object-fit-cover" width="40" height="40" alt="@ViewBag.OtherUserName">
+                    }
+                    else
+                    {
+                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" style="width: 40px; height: 40px;">
+                            @(ViewBag.OtherUserName.Substring(0, 1))
+                        </div>
+                    }
+                </div>
+                <div>
+                    <h5 class="mb-0 fw-bold h6">@ViewBag.OtherUserName</h5>
+                    <small class="text-muted" id="typingIndicator" style="display: none;">typing...</small>
+                </div>
+            </div>
+
+            <!-- Messages Area -->
+            <div class="glass-panel flex-grow-1 p-4 overflow-auto bg-opacity-10" id="messagesList">
+                @foreach (var msg in Model)
+                {
+                    bool isOwn = msg.SenderId == ViewBag.CurrentUserId;
+                    
+                    <div class="d-flex mb-4 @(isOwn ? "justify-content-end" : "justify-content-start")">
+                        @if (!isOwn)
+                        {
+                            <div class="me-2 flex-shrink-0 mt-auto">
+                                @if (!string.IsNullOrEmpty(msg.Sender?.Avatar))
+                                {
+                                    <img src="@msg.Sender.Avatar" class="rounded-circle" width="28" height="28" alt="">
+                                }
+                                else
+                                {
+                                    <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 28px; height: 28px; font-size: 10px;">
+                                        @(msg.Sender?.FullName.Substring(0, 1) ?? "U")
+                                    </div>
+                                }
+                            </div>
+                        }
+                        
+                        <div style="max-width: 75%;">
+                            <div class="p-3 rounded-4 @(isOwn ? "bg-primary text-white" : "bg-dark text-light border border-secondary border-opacity-50")" style="@(isOwn ? "border-bottom-right-radius: 4px !important;" : "border-bottom-left-radius: 4px !important;")">
+                                @msg.Content
+                            </div>
+                            <div class="small text-muted mt-1 @(isOwn ? "text-end" : "text-start")" style="font-size: 0.7rem;">
+                                @msg.SentAt.ToString("MMM dd, HH:mm")
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Input Area -->
+            <div class="glass-panel p-3 rounded-bottom-4">
+                <div class="input-group">
+                    <input type="text" id="messageInput" class="form-control bg-dark text-white border-secondary rounded-start-pill ps-4 py-2" placeholder="Type a message..." autocomplete="off">
+                    <button class="btn btn-primary rounded-end-pill px-4" type="button" id="sendBtn"><i class="bi bi-send-fill"></i></button>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="receiverId" value="@ViewBag.OtherUserId" />
+<input type="hidden" id="currentUserId" value="@ViewBag.CurrentUserId" />
+
+@section Scripts {
+    <script src="~/lib/signalr/dist/browser/signalr.min.js"></script>
+    <script>
+        const receiverId = document.getElementById("receiverId").value;
+        const currentUserId = document.getElementById("currentUserId").value;
+        const msgList = document.getElementById("messagesList");
+        
+        // Scroll to bottom
+        msgList.scrollTop = msgList.scrollHeight;
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/hubs/chat")
+            .build();
+
+        connection.on("ReceiveMessage", function (data) {
+            // Only append if it's relevant to this conversation
+            if ((data.senderId === receiverId) || data.isOwn) {
+                const isOwn = data.isOwn;
+                
+                const div = document.createElement("div");
+                div.className = `d-flex mb-4 ${isOwn ? "justify-content-end" : "justify-content-start"}`;
+                
+                let avatarHtml = '';
+                if (!isOwn) {
+                    if (data.senderAvatar) {
+                        avatarHtml = `<div class="me-2 flex-shrink-0 mt-auto"><img src="${data.senderAvatar}" class="rounded-circle" width="28" height="28" alt=""></div>`;
+                    } else {
+                        const initial = data.senderName ? data.senderName.substring(0, 1) : "U";
+                        avatarHtml = `<div class="me-2 flex-shrink-0 mt-auto"><div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 28px; height: 28px; font-size: 10px;">${initial}</div></div>`;
+                    }
+                }
+                
+                const bubbleClass = isOwn ? "bg-primary text-white" : "bg-dark text-light border border-secondary border-opacity-50";
+                const radiusClass = isOwn ? "border-bottom-right-radius: 4px !important;" : "border-bottom-left-radius: 4px !important;";
+                const alignClass = isOwn ? "text-end" : "text-start";
+                
+                const date = new Date(data.sentAt);
+                const timeStr = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                div.innerHTML = `
+                    ${avatarHtml}
+                    <div style="max-width: 75%;">
+                        <div class="p-3 rounded-4 ${bubbleClass}" style="${radiusClass}">
+                            ${data.content.replace(/</g, "&lt;").replace(/>/g, "&gt;")}
+                        </div>
+                        <div class="small text-muted mt-1 ${alignClass}" style="font-size: 0.7rem;">
+                            ${timeStr}
+                        </div>
+                    </div>
+                `;
+                
+                msgList.appendChild(div);
+                msgList.scrollTop = msgList.scrollHeight;
+                
+                if(!isOwn) {
+                    document.getElementById("typingIndicator").style.display = "none";
+                }
+            }
+        });
+        
+        let typingTimeout;
+        connection.on("UserTyping", function(userId) {
+            if(userId === receiverId) {
+                document.getElementById("typingIndicator").style.display = "inline";
+                clearTimeout(typingTimeout);
+                typingTimeout = setTimeout(() => {
+                    document.getElementById("typingIndicator").style.display = "none";
+                }, 3000);
+            }
+        });
+
+        connection.start().catch(err => console.error(err.toString()));
+
+        document.getElementById("sendBtn").addEventListener("click", function () {
+            const input = document.getElementById("messageInput");
+            const content = input.value.trim();
+            if (content === "") return;
+
+            connection.invoke("SendDirectMessage", receiverId, content, null)
+                .then(() => { input.value = ""; })
+                .catch(err => console.error(err.toString()));
+        });
+
+        document.getElementById("messageInput").addEventListener("keypress", function (e) {
+            connection.invoke("SendTyping", receiverId).catch(()=>{});
+            if (e.key === "Enter") {
+                e.preventDefault();
+                document.getElementById("sendBtn").click();
+            }
+        });
+    </script>
+}

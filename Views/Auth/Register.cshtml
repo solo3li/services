@@ -1,0 +1,63 @@
+@using ServicesApp.Models.ViewModels
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+    Layout = "_Layout";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-5">
+            <div class="glass-panel p-5 rounded-4 shadow-lg position-relative overflow-hidden">
+                <div class="position-absolute top-100 start-50 translate-middle w-75 h-50 rounded-circle" style="background: radial-gradient(circle, rgba(6, 182, 212, 0.3) 0%, transparent 70%); filter: blur(40px); z-index: 0;"></div>
+                
+                <div class="position-relative z-1">
+                    <div class="text-center mb-5">
+                        <h1 class="h3 fw-bold mb-2">Create an Account</h1>
+                        <p class="text-muted">Join the community and start your journey</p>
+                    </div>
+
+                    <form asp-controller="Auth" asp-action="Register" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
+                        
+                        <div class="form-floating mb-3">
+                            <input asp-for="FullName" class="form-control bg-dark text-white border-secondary" placeholder="John Doe" autocomplete="name" aria-required="true" />
+                            <label asp-for="FullName" class="text-muted">Full Name</label>
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="Email" class="form-control bg-dark text-white border-secondary" placeholder="name@example.com" autocomplete="email" aria-required="true" />
+                            <label asp-for="Email" class="text-muted">Email address</label>
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <input asp-for="Password" class="form-control bg-dark text-white border-secondary" placeholder="password" autocomplete="new-password" aria-required="true" />
+                            <label asp-for="Password" class="text-muted">Password</label>
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-floating mb-4">
+                            <input asp-for="ConfirmPassword" class="form-control bg-dark text-white border-secondary" placeholder="password" autocomplete="new-password" aria-required="true" />
+                            <label asp-for="ConfirmPassword" class="text-muted">Confirm Password</label>
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold glow-btn mb-4">Create Account</button>
+                    </form>
+                    
+                    <div class="text-center mt-4">
+                        <p class="text-muted small">
+                            Already have an account? <a asp-controller="Auth" asp-action="Login" class="text-primary text-decoration-none fw-bold">Log in</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

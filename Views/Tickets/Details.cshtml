@@ -1,0 +1,161 @@
+@using ServicesApp.Models.Entities
+@model SupportTicket
+@{
+    ViewData["Title"] = $"Ticket #{Model.Id}";
+}
+
+<div class="container py-4 h-100">
+    <div class="row justify-content-center h-100">
+        <div class="col-12 col-lg-8 d-flex flex-column" style="height: 80vh;">
+            
+            <!-- Header -->
+            <div class="glass-panel p-3 p-md-4 rounded-top-4 border-bottom border-secondary border-opacity-25">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="d-flex align-items-center">
+                        <a asp-action="List" class="btn btn-sm btn-link text-white me-2"><i class="bi bi-arrow-left"></i></a>
+                        <h1 class="h5 fw-bold mb-0">@Model.Subject</h1>
+                    </div>
+                    @{
+                        var badgeClass = Model.Status switch
+                        {
+                            TicketStatus.Open => "bg-warning text-dark",
+                            TicketStatus.InProgress => "bg-info text-dark",
+                            TicketStatus.Closed => "bg-secondary",
+                            _ => "bg-secondary"
+                        };
+                    }
+                    <span class="badge @badgeClass rounded-pill">@Model.Status</span>
+                </div>
+                <div class="d-flex text-muted small ms-5 ps-2">
+                    <span class="me-3">Ticket #@Model.Id</span>
+                    <span class="me-3">@Model.Category</span>
+                    <span>@Model.CreatedAt.ToString("MMM dd, yyyy")</span>
+                </div>
+            </div>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success rounded-0 border-0 m-0 py-2 px-4 small">
+                    <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+                </div>
+            }
+
+            <!-- Messages Area -->
+            <div class="glass-panel flex-grow-1 p-4 overflow-auto bg-opacity-10" id="ticketMessagesList">
+                @foreach (var msg in Model.Messages.OrderBy(m => m.SentAt))
+                {
+                    bool isOwn = msg.SenderId == ViewBag.CurrentUserId;
+                    bool isAdmin = msg.IsFromAdmin;
+                    
+                    <div class="d-flex mb-4 @(isOwn ? "justify-content-end" : "justify-content-start")">
+                        @if (!isOwn)
+                        {
+                            <div class="me-2 flex-shrink-0 mt-auto">
+                                @if (isAdmin)
+                                {
+                                    <div class="bg-danger rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 28px; height: 28px; font-size: 12px;">
+                                        <i class="bi bi-headset"></i>
+                                    </div>
+                                }
+                                else if (!string.IsNullOrEmpty(msg.Sender?.Avatar))
+                                {
+                                    <img src="@msg.Sender.Avatar" class="rounded-circle" width="28" height="28" alt="">
+                                }
+                                else
+                                {
+                                    <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 28px; height: 28px; font-size: 10px;">
+                                        @(msg.Sender?.FullName.Substring(0, 1) ?? "U")
+                                    </div>
+                                }
+                            </div>
+                        }
+                        
+                        <div style="max-width: 75%;">
+                            <div class="p-3 rounded-4 @(isOwn ? "bg-primary text-white" : (isAdmin ? "bg-dark border border-danger border-opacity-50 text-white" : "bg-dark border border-secondary border-opacity-50 text-white"))" style="@(isOwn ? "border-bottom-right-radius: 4px !important;" : "border-bottom-left-radius: 4px !important;")">
+                                <div style="white-space: pre-line;">@msg.Content</div>
+                            </div>
+                            <div class="small text-muted mt-1 @(isOwn ? "text-end" : "text-start")" style="font-size: 0.7rem;">
+                                @if(!isOwn) { 
+                                    <span class="fw-bold me-1 @(isAdmin ? "text-danger" : "")">
+                                        @(isAdmin ? "Support Agent" : msg.Sender?.FullName)
+                                    </span> 
+                                }
+                                @msg.SentAt.ToString("MMM dd, HH:mm")
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Input Area -->
+            <div class="glass-panel p-3 rounded-bottom-4 border-top border-secondary border-opacity-25">
+                @if (Model.Status != TicketStatus.Closed)
+                {
+                    <div class="input-group">
+                        <textarea id="ticketMessageInput" class="form-control bg-dark text-white border-secondary ps-3 py-2" rows="2" style="border-radius: 12px 0 0 12px; resize: none;" placeholder="Type your reply..."></textarea>
+                        <button class="btn btn-primary px-4" style="border-radius: 0 12px 12px 0;" type="button" id="sendTicketBtn"><i class="bi bi-send-fill"></i></button>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center text-muted py-2">
+                        <i class="bi bi-lock-fill me-1"></i> This ticket is closed. If you need further assistance, please open a new ticket.
+                    </div>
+                }
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="ticketId" value="@Model.Id" />
+<input type="hidden" id="currentUserId" value="@ViewBag.CurrentUserId" />
+<input type="hidden" id="isClosed" value="@(Model.Status == TicketStatus.Closed ? "true" : "false")" />
+
+@section Scripts {
+    <script src="~/lib/signalr/dist/browser/signalr.min.js"></script>
+    <script>
+        const ticketId = document.getElementById("ticketId").value;
+        const currentUserId = document.getElementById("currentUserId").value;
+        const isClosed = document.getElementById("isClosed").value === "true";
+        const msgList = document.getElementById("ticketMessagesList");
+        
+        msgList.scrollTop = msgList.scrollHeight;
+
+        if (!isClosed) {
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/hubs/ticket")
+                .build();
+
+            connection.on("ReceiveTicketMessage", function (data) {
+                // Determine if the message is from the current user (if they are not admin, or if they are admin checking their own)
+                // The backend doesn't send senderId back currently, we determine by isFromAdmin for simplicity if current user is not admin
+                // For a more robust solution, senderId should be returned in the payload.
+                
+                // Refresh page for now to get proper UI formatting (since it's a simple implementation)
+                window.location.reload();
+            });
+
+            connection.start().then(function () {
+                connection.invoke("JoinTicket", parseInt(ticketId)).catch(err => console.error(err));
+            }).catch(err => console.error(err.toString()));
+
+            document.getElementById("sendTicketBtn").addEventListener("click", function () {
+                const input = document.getElementById("ticketMessageInput");
+                const content = input.value.trim();
+                if (content === "") return;
+
+                connection.invoke("SendTicketMessage", parseInt(ticketId), content)
+                    .then(() => { input.value = ""; })
+                    .catch(err => console.error(err.toString()));
+            });
+
+            document.getElementById("ticketMessageInput").addEventListener("keydown", function (e) {
+                if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    document.getElementById("sendTicketBtn").click();
+                }
+            });
+        }
+    </script>
+}

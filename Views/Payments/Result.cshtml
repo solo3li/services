@@ -1,0 +1,41 @@
+@{
+    ViewData["Title"] = "Payment Result";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="glass-card p-4 p-md-5 rounded-4 text-center">
+                @if (ViewBag.Success)
+                {
+                    <div class="mb-4">
+                        <i class="bi bi-check-circle-fill text-success glow-text" style="font-size: 5rem;"></i>
+                    </div>
+                    <h1 class="h3 fw-bold text-success mb-3">Payment Successful!</h1>
+                    <p class="text-muted mb-4">Your order has been placed and the executor has been notified. They will start working on it shortly.</p>
+                    
+                    <div class="bg-dark bg-opacity-50 p-3 rounded-3 mb-4 text-start d-inline-block text-muted small mx-auto border border-secondary border-opacity-25">
+                        <div class="mb-1"><strong>Transaction ID:</strong> @ViewBag.TxId</div>
+                        <div><strong>Order ID:</strong> #@ViewBag.OrderId</div>
+                    </div>
+                    
+                    <div>
+                        <a asp-controller="Orders" asp-action="Tracking" asp-route-id="@ViewBag.OrderId" class="btn btn-primary rounded-pill px-5 glow-btn py-2">Track Order</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="mb-4">
+                        <i class="bi bi-x-circle-fill text-danger glow-text" style="font-size: 5rem;"></i>
+                    </div>
+                    <h1 class="h3 fw-bold text-danger mb-3">Payment Failed</h1>
+                    <p class="text-muted mb-4">There was an issue processing your payment. Please try again or use a different payment method.</p>
+                    
+                    <div>
+                        <a asp-controller="Payments" asp-action="Checkout" asp-route-orderId="@ViewBag.OrderId" class="btn btn-outline-danger rounded-pill px-5 py-2">Try Again</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,58 @@
+@using ServicesApp.Controllers
+@model CreateOrderViewModel
+@{
+    ViewData["Title"] = "Order Requirements";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+            <div class="glass-card p-4 p-md-5 rounded-4 position-relative overflow-hidden">
+                <!-- Background decoration -->
+                <div class="position-absolute top-0 end-0 p-5 z-0" style="opacity: 0.1;">
+                    <i class="bi bi-box-seam display-1"></i>
+                </div>
+                
+                <div class="position-relative z-1">
+                    <h1 class="h3 fw-bold mb-4">Submit Requirements</h1>
+                    
+                    <!-- Order Summary -->
+                    <div class="bg-dark bg-opacity-50 p-4 rounded-3 mb-5 border border-secondary border-opacity-50">
+                        <h4 class="h6 text-muted text-uppercase fw-bold mb-3">Order Summary</h4>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-medium">@Model.ServiceTitle</span>
+                            <span class="fw-bold">$@Model.Price.ToString("0.00")</span>
+                        </div>
+                        <div class="text-muted small">
+                            <i class="bi bi-clock me-1"></i> Delivery in @Model.DeliveryDays days
+                        </div>
+                    </div>
+
+                    <form asp-action="Create" method="post">
+                        <input type="hidden" asp-for="ServiceId" />
+                        <input type="hidden" asp-for="ServiceTitle" />
+                        <input type="hidden" asp-for="Price" />
+                        <input type="hidden" asp-for="DeliveryDays" />
+                        
+                        <div class="mb-4">
+                            <label asp-for="Requirements" class="form-label fw-bold">Project Requirements <span class="text-danger">*</span></label>
+                            <p class="text-muted small mb-3">Please provide all necessary details, specifications, and files needed for the freelancer to start working on your order.</p>
+                            
+                            <textarea asp-for="Requirements" class="form-control bg-dark text-white border-secondary" rows="10" placeholder="Hello! I need you to...&#10;&#10;Here are the specific details:&#10;1. ...&#10;2. ..."></textarea>
+                            <span asp-validation-for="Requirements" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-5">
+                            <a asp-controller="Services" asp-action="Details" asp-route-id="@Model.ServiceId" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 glow-btn">Continue to Payment <i class="bi bi-arrow-right ms-2"></i></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
