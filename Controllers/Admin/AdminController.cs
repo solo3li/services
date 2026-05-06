@@ -87,4 +87,45 @@ public class AdminController : Controller
         }
         return RedirectToAction(nameof(Users));
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateAdmin(string email, string fullName, string password)
+    {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(fullName))
+        {
+            TempData["ErrorMessage"] = "All fields are required to create an admin.";
+            return RedirectToAction(nameof(Users));
+        }
+
+        if (await _userManager.FindByEmailAsync(email) != null)
+        {
+            TempData["ErrorMessage"] = "A user with this email already exists.";
+            return RedirectToAction(nameof(Users));
+        }
+
+        var admin = new ApplicationUser
+        {
+            UserName = email,
+            Email = email,
+            FullName = fullName,
+            EmailConfirmed = true,
+            IsExecutor = true,
+            ExecutorStatus = ExecutorStatus.Approved,
+            IsActive = true
+        };
+
+        var result = await _userManager.CreateAsync(admin, password);
+        if (result.Succeeded)
+        {
+            await _userManager.AddToRolesAsync(admin, new[] { "Admin", "Student", "Executor" });
+            TempData["SuccessMessage"] = "Admin user created successfully.";
+        }
+        else
+        {
+            TempData["ErrorMessage"] = string.Join(", ", result.Errors.Select(e => e.Description));
+        }
+
+        return RedirectToAction(nameof(Users));
+    }
 }
