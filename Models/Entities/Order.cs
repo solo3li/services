@@ -33,5 +33,6 @@ public class Order
     public ApplicationUser? Executor { get; set; }
 
     public Payment? Payment { get; set; }
+    public Review? Review { get; set; }
     public ICollection<Message> Messages { get; set; } = new List<Message>();
 }

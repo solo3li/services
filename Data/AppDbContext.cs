@@ -17,6 +17,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<TicketMessage> TicketMessages => Set<TicketMessage>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<Payment> Payments => Set<Payment>();
+    public DbSet<Review> Reviews => Set<Review>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -102,5 +103,24 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
 
         builder.Entity<Service>()
             .HasIndex(s => s.IsActive);
+
+        // Review Relationships
+        builder.Entity<Review>()
+            .HasOne(r => r.Order)
+            .WithOne(o => o.Review)
+            .HasForeignKey<Review>(r => r.OrderId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Review>()
+            .HasOne(r => r.Service)
+            .WithMany()
+            .HasForeignKey(r => r.ServiceId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Review>()
+            .HasOne(r => r.User)
+            .WithMany()
+            .HasForeignKey(r => r.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

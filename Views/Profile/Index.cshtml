@@ -1,0 +1,66 @@
+@model ServicesApp.Models.Entities.ApplicationUser
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+            <div class="glass-card rounded-4 p-5">
+                <div class="text-center mb-5">
+                    <div class="position-relative d-inline-block">
+                        @if (!string.IsNullOrEmpty(Model.Avatar))
+                        {
+                            <img src="@Model.Avatar" class="rounded-circle border border-3 border-primary p-1" width="120" height="120" style="object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white fw-bold mx-auto" style="width: 120px; height: 120px; font-size: 3rem;">
+                                @(Model.FullName.Substring(0, 1))
+                            </div>
+                        }
+                    </div>
+                    <h2 class="mt-3 fw-bold text-white">@Model.FullName</h2>
+                    <p class="text-muted">Account Type: <span class="badge bg-secondary">@(Model.IsExecutor ? "Freelancer" : "Student")</span></p>
+                </div>
+
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success bg-success bg-opacity-10 text-success border-success border-opacity-25 rounded-3 mb-4">
+                        <i class="bi bi-check-circle me-2"></i> @TempData["SuccessMessage"]
+                    </div>
+                }
+
+                <form asp-action="Update" method="post">
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <label class="form-label text-muted small fw-bold text-uppercase">Full Name</label>
+                            <input type="text" name="fullName" class="form-control bg-dark text-white border-secondary rounded-3 py-2" value="@Model.FullName" required>
+                        </div>
+                        
+                        <div class="col-12">
+                            <label class="form-label text-muted small fw-bold text-uppercase">Email Address (ReadOnly)</label>
+                            <input type="email" class="form-control bg-dark text-muted border-secondary rounded-3 py-2" value="@Model.Email" readonly disabled>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label text-muted small fw-bold text-uppercase">Profile Picture URL</label>
+                            <input type="url" name="avatar" class="form-control bg-dark text-white border-secondary rounded-3 py-2" value="@Model.Avatar" placeholder="https://example.com/photo.jpg">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label text-muted small fw-bold text-uppercase">Bio / Professional Summary</label>
+                            <textarea name="bio" class="form-control bg-dark text-white border-secondary rounded-3 py-2" rows="4">@Model.Bio</textarea>
+                        </div>
+
+                        <div class="col-12 text-center mt-5">
+                            <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold glow-btn">
+                                <i class="bi bi-save me-2"></i> Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

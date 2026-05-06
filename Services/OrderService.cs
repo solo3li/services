@@ -89,7 +89,22 @@ public class OrderService
             order.DeliveryNote = deliveryNote;
             order.DeliveryFileUrl = deliveryFileUrl;
         }
-        if (status == OrderStatus.Completed) order.CompletedAt = DateTime.UtcNow;
+        if (status == OrderStatus.Completed)
+        {
+            order.CompletedAt = DateTime.UtcNow;
+            
+            // Financial logic: Transfer funds to executor wallet
+            // Deduct 15% platform commission
+            var commission = order.TotalPrice * 0.15m;
+            var earnings = order.TotalPrice - commission;
+
+            var executor = await _db.Users.FindAsync(order.ExecutorId);
+            if (executor != null)
+            {
+                executor.WalletBalance += earnings;
+            }
+        }
+
         if (cancellationReason != null) order.CancellationReason = cancellationReason;
 
         await _db.SaveChangesAsync();

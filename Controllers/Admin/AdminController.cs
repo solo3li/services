@@ -146,4 +146,30 @@ public class AdminController : Controller
         TempData["SuccessMessage"] = "Platform settings updated successfully.";
         return RedirectToAction(nameof(Settings));
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateUserRole(string userId, string role, bool addToRole)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return NotFound();
+
+        if (addToRole)
+        {
+            await _userManager.AddToRoleAsync(user, role);
+        }
+        else
+        {
+            // Don't allow demoting the last admin (safety check)
+            if (role == "Admin" && user.Email == "admin@services.io")
+            {
+                TempData["ErrorMessage"] = "Cannot demote the primary system administrator.";
+                return RedirectToAction(nameof(Users));
+            }
+            await _userManager.RemoveFromRoleAsync(user, role);
+        }
+
+        TempData["SuccessMessage"] = $"User roles updated successfully.";
+        return RedirectToAction(nameof(Users));
+    }
 }

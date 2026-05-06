@@ -138,6 +138,47 @@ public class OrdersController : Controller
         TempData["SuccessMessage"] = "Order status updated successfully.";
         return RedirectToAction(nameof(Tracking), new { id });
     }
+
+    [HttpPost]
+    [Authorize]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SubmitReview(int orderId, int rating, string comment)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null) return Challenge();
+
+        var order = await _db.Orders
+            .Include(o => o.Service)
+            .FirstOrDefaultAsync(o => o.Id == orderId && o.ClientId == user.Id);
+
+        if (order == null || order.Status != OrderStatus.Completed || order.Review != null)
+        {
+            return BadRequest("Invalid request.");
+        }
+
+        var review = new Review
+        {
+            OrderId = orderId,
+            ServiceId = order.ServiceId,
+            UserId = user.Id,
+            Rating = rating,
+            Comment = comment
+        };
+
+        _db.Reviews.Add(review);
+        
+        // Update service rating stats
+        var service = order.Service;
+        var totalReviews = await _db.Reviews.CountAsync(r => r.ServiceId == service.Id) + 1;
+        var totalRating = await _db.Reviews.Where(r => r.ServiceId == service.Id).SumAsync(r => r.Rating) + rating;
+        service.Rating = (double)totalRating / totalReviews;
+        service.ReviewCount = totalReviews;
+
+        await _db.SaveChangesAsync();
+        TempData["SuccessMessage"] = "Thank you for your review!";
+        
+        return RedirectToAction(nameof(Tracking), new { id = orderId });
+    }
 }
 
 public class CreateOrderViewModel

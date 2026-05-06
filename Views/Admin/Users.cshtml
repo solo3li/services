@@ -1,5 +1,7 @@
+@using Microsoft.AspNetCore.Identity
 @using ServicesApp.Models.Entities
 @model List<ApplicationUser>
+@inject UserManager<ApplicationUser> UserManager
 @{
     ViewData["Title"] = "User Management";
 }
@@ -37,8 +39,8 @@
                     <tr>
                         <th class="border-secondary text-muted small py-3">User</th>
                         <th class="border-secondary text-muted small py-3">Email</th>
-                        <th class="border-secondary text-muted small py-3">Role Status</th>
-                        <th class="border-secondary text-muted small py-3">Joined</th>
+                        <th class="border-secondary text-muted small py-3">Type</th>
+                        <th class="border-secondary text-muted small py-3">Roles</th>
                         <th class="border-secondary text-muted small py-3">Status</th>
                         <th class="border-secondary text-muted small py-3 text-end">Actions</th>
                     </tr>
@@ -46,6 +48,7 @@
                 <tbody class="border-top-0">
                     @foreach (var user in Model)
                     {
+                        var isAdmin = await UserManager.IsInRoleAsync(user, "Admin");
                         <tr>
                             <td class="border-secondary py-3">
                                 <div class="d-flex align-items-center">
@@ -66,14 +69,23 @@
                             <td class="border-secondary py-3">
                                 @if (user.IsExecutor)
                                 {
-                                    <span class="badge bg-success rounded-pill px-2 py-1"><i class="bi bi-briefcase me-1"></i> Executor</span>
+                                    <span class="badge bg-success rounded-pill px-2 py-1 small"><i class="bi bi-briefcase me-1"></i> Executor</span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-secondary rounded-pill px-2 py-1"><i class="bi bi-person me-1"></i> Student</span>
+                                    <span class="badge bg-secondary rounded-pill px-2 py-1 small"><i class="bi bi-person me-1"></i> Student</span>
                                 }
                             </td>
-                            <td class="border-secondary py-3 text-muted small">@user.CreatedAt.ToString("MMM dd, yyyy")</td>
+                            <td class="border-secondary py-3">
+                                @if (isAdmin)
+                                {
+                                    <span class="badge bg-danger rounded-pill px-2 py-1 small">Admin</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">-</span>
+                                }
+                            </td>
                             <td class="border-secondary py-3">
                                 @if (user.IsActive)
                                 {
@@ -85,17 +97,33 @@
                                 }
                             </td>
                             <td class="border-secondary py-3 text-end">
-                                <form asp-action="ToggleUserStatus" method="post">
-                                    <input type="hidden" name="id" value="@user.Id" />
-                                    @if (user.IsActive)
-                                    {
-                                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="return confirm('Are you sure you want to suspend this user?');">Suspend</button>
-                                    }
-                                    else
-                                    {
-                                        <button type="submit" class="btn btn-outline-success btn-sm rounded-pill px-3">Activate</button>
-                                    }
-                                </form>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <form asp-action="UpdateUserRole" method="post" class="d-inline">
+                                        <input type="hidden" name="userId" value="@user.Id" />
+                                        <input type="hidden" name="role" value="Admin" />
+                                        <input type="hidden" name="addToRole" value="@(!isAdmin)" />
+                                        @if (isAdmin)
+                                        {
+                                            <button type="submit" class="btn btn-outline-warning btn-sm rounded-pill px-2" title="Remove Admin Role" onclick="return confirm('Remove admin privileges from this user?');"><i class="bi bi-shield-lock"></i></button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" class="btn btn-outline-info btn-sm rounded-pill px-2" title="Make Admin"><i class="bi bi-shield-plus"></i></button>
+                                        }
+                                    </form>
+
+                                    <form asp-action="ToggleUserStatus" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@user.Id" />
+                                        @if (user.IsActive)
+                                        {
+                                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="return confirm('Are you sure you want to suspend this user?');">Suspend</button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" class="btn btn-outline-success btn-sm rounded-pill px-3">Activate</button>
+                                        }
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     }
