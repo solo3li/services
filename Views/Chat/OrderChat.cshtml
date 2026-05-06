@@ -75,12 +75,14 @@
 
 <input type="hidden" id="orderId" value="@ViewBag.OrderId" />
 <input type="hidden" id="currentUserId" value="@ViewBag.CurrentUserId" />
+<input type="hidden" id="receiverId" value="@ViewBag.ReceiverId" />
 
 @section Scripts {
     <script src="~/lib/signalr/dist/browser/signalr.min.js"></script>
     <script>
         const orderId = document.getElementById("orderId").value;
         const currentUserId = document.getElementById("currentUserId").value;
+        const receiverId = document.getElementById("receiverId").value;
         const msgList = document.getElementById("messagesList");
         
         msgList.scrollTop = msgList.scrollHeight;
@@ -140,7 +142,7 @@
             const content = input.value.trim();
             if (content === "") return;
 
-            connection.invoke("SendOrderMessage", parseInt(orderId), "", content)
+            connection.invoke("SendOrderMessage", parseInt(orderId), receiverId, content)
                 .then(() => { input.value = ""; })
                 .catch(err => console.error(err.toString()));
         });

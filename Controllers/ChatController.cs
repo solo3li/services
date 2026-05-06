@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using ServicesApp.Data;
 using ServicesApp.Models.Entities;
 using ServicesApp.Services;
 
@@ -11,11 +12,13 @@ public class ChatController : Controller
 {
     private readonly ChatService _chatService;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly AppDbContext _db;
 
-    public ChatController(ChatService chatService, UserManager<ApplicationUser> userManager)
+    public ChatController(ChatService chatService, UserManager<ApplicationUser> userManager, AppDbContext db)
     {
         _chatService = chatService;
         _userManager = userManager;
+        _db = db;
     }
 
     public async Task<IActionResult> Conversations()
@@ -54,12 +57,16 @@ public class ChatController : Controller
         var currentUser = await _userManager.GetUserAsync(User);
         if (currentUser == null) return Challenge();
 
-        // In a real app we'd verify the user is part of the order here, skipping for brevity
+        var order = await _db.Orders.FindAsync(orderId);
+        if (order == null) return NotFound();
+
+        string receiverId = currentUser.Id == order.ClientId ? order.ExecutorId : order.ClientId;
         
         var messages = await _chatService.GetOrderChatAsync(orderId);
         
         ViewBag.OrderId = orderId;
         ViewBag.CurrentUserId = currentUser.Id;
+        ViewBag.ReceiverId = receiverId;
 
         return View(messages);
     }
