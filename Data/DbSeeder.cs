@@ -135,5 +135,36 @@ public static class DbSeeder
             db.Services.AddRange(services);
             await db.SaveChangesAsync();
         }
+
+        // Email Templates
+        if (!db.EmailTemplates.Any())
+        {
+            var templates = new List<EmailTemplate>
+            {
+                new() 
+                { 
+                    Name = "Welcome Email", 
+                    Slug = "welcome-email", 
+                    Subject = "Welcome to {{AppName}}!", 
+                    Body = "<h1>Hello {{UserName}},</h1><p>Welcome to our platform! We're excited to have you with us.</p><p>Click here to start exploring services: <a href='{{Link}}'>Explore Now</a></p>" 
+                },
+                new() 
+                { 
+                    Name = "Order Confirmation", 
+                    Slug = "order-confirmation", 
+                    Subject = "New Order Placed #{{OrderNumber}}", 
+                    Body = "<h3>Order Confirmed</h3><p>Hi {{UserName}},</p><p>Your order #{{OrderNumber}} has been successfully placed and the executor has been notified.</p><p><a href='{{Link}}'>Track your order here</a></p>" 
+                },
+                new() 
+                { 
+                    Name = "Support Ticket Reply", 
+                    Slug = "ticket-reply", 
+                    Subject = "New Reply on Ticket #{{TicketId}}", 
+                    Body = "<p>Hi {{UserName}},</p><p>A staff member has replied to your support ticket. Please log in to view the response.</p><p><a href='{{Link}}'>View Ticket</a></p>" 
+                }
+            };
+            db.EmailTemplates.AddRange(templates);
+            await db.SaveChangesAsync();
+        }
     }
 }
