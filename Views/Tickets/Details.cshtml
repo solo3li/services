@@ -145,7 +145,7 @@
                 const content = input.value.trim();
                 if (content === "") return;
 
-                connection.invoke("SendTicketMessage", parseInt(ticketId), content)
+                connection.invoke("SendMessage", parseInt(ticketId), content)
                     .then(() => { input.value = ""; })
                     .catch(err => console.error(err.toString()));
             });

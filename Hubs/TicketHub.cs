@@ -28,7 +28,7 @@ public class TicketHub : Hub
         await Groups.AddToGroupAsync(Context.ConnectionId, $"ticket_{ticketId}");
     }
 
-    public async Task SendTicketMessage(int ticketId, string content)
+    public async Task SendMessage(int ticketId, string content)
     {
         var senderId = Context.UserIdentifier!;
 
@@ -60,8 +60,10 @@ public class TicketHub : Hub
             id = msg.Id,
             content = msg.Content,
             isFromAdmin = msg.IsFromAdmin,
+            senderId = msg.SenderId,
             senderName = sender?.FullName ?? "Unknown",
-            sentAt = msg.SentAt.ToString("o")
+            senderAvatar = sender?.Avatar,
+            sentAt = msg.SentAt
         });
     }
 }
