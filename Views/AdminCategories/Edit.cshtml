@@ -1,0 +1,62 @@
+@using ServicesApp.Models.Entities
+@model Category
+@{
+    ViewData["Title"] = "Edit Category";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 fw-bold">Edit Category</h1>
+            <a asp-action="Index" class="text-muted text-decoration-none"><i class="bi bi-arrow-left me-1"></i> Back to Categories</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-lg-8">
+            <div class="glass-card rounded-4 p-4">
+                <form asp-action="Edit" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label text-muted small fw-bold">Category Name <span class="text-danger">*</span></label>
+                        <input asp-for="Name" class="form-control bg-dark text-white border-secondary" required>
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Slug" class="form-label text-muted small fw-bold">Slug (URL friendly) <span class="text-danger">*</span></label>
+                        <input asp-for="Slug" class="form-control bg-dark text-white border-secondary" required>
+                        <span asp-validation-for="Slug" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Icon" class="form-label text-muted small fw-bold">Icon (Emoji or CSS Class)</label>
+                        <input asp-for="Icon" class="form-control bg-dark text-white border-secondary">
+                        <span asp-validation-for="Icon" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label text-muted small fw-bold">Description</label>
+                        <textarea asp-for="Description" class="form-control bg-dark text-white border-secondary" rows="3"></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="SortOrder" class="form-label text-muted small fw-bold">Sort Order</label>
+                        <input asp-for="SortOrder" class="form-control bg-dark text-white border-secondary" type="number">
+                        <span asp-validation-for="SortOrder" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4 pt-3 border-top border-secondary border-opacity-25">
+                        <button type="submit" class="btn btn-primary rounded-pill px-5 glow-btn">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

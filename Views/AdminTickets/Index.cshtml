@@ -1,0 +1,70 @@
+@using ServicesApp.Models.Entities
+@model List<SupportTicket>
+@{
+    ViewData["Title"] = "Support Tickets";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 fw-bold">Support Tickets</h1>
+            <p class="text-muted">Manage user inquiries and disputes</p>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success bg-success bg-opacity-10 text-success border-success border-opacity-25 rounded-3 mb-4">
+            <i class="bi bi-check-circle me-2"></i> @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <div class="glass-card rounded-4 p-4">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th class="border-secondary text-muted small py-3">ID</th>
+                        <th class="border-secondary text-muted small py-3">Subject</th>
+                        <th class="border-secondary text-muted small py-3">User</th>
+                        <th class="border-secondary text-muted small py-3">Status</th>
+                        <th class="border-secondary text-muted small py-3">Created</th>
+                        <th class="border-secondary text-muted small py-3 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="border-top-0">
+                    @foreach (var ticket in Model)
+                    {
+                        <tr>
+                            <td class="border-secondary py-3 text-muted">#@ticket.Id</td>
+                            <td class="border-secondary py-3 fw-bold">@ticket.Subject</td>
+                            <td class="border-secondary py-3">@ticket.User.FullName</td>
+                            <td class="border-secondary py-3">
+                                @{
+                                    var badgeClass = ticket.Status switch
+                                    {
+                                        TicketStatus.Open => "bg-success",
+                                        TicketStatus.InProgress => "bg-warning text-dark",
+                                        TicketStatus.Closed => "bg-secondary",
+                                        _ => "bg-secondary"
+                                    };
+                                }
+                                <span class="badge @badgeClass rounded-pill">@ticket.Status</span>
+                            </td>
+                            <td class="border-secondary py-3 small text-muted">@ticket.CreatedAt.ToString("MMM dd, yyyy")</td>
+                            <td class="border-secondary py-3 text-end">
+                                <a asp-action="Details" asp-route-id="@ticket.Id" class="btn btn-sm btn-outline-primary rounded-pill px-3">Manage</a>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="border-secondary py-4 text-center text-muted">No support tickets found.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

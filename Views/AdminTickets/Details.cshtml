@@ -1,0 +1,242 @@
+@using ServicesApp.Models.Entities
+@model SupportTicket
+@{
+    ViewData["Title"] = "Ticket #" + Model.Id;
+    var messages = ViewBag.Messages as List<TicketMessage>;
+    var currentUserId = ViewBag.CurrentUserId as string;
+}
+
+<div class="container-fluid h-100 d-flex flex-column" style="min-height: 80vh;">
+    <div class="row mb-4 flex-shrink-0">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 fw-bold">Ticket #@Model.Id</h1>
+                <a asp-action="Index" class="text-muted text-decoration-none"><i class="bi bi-arrow-left me-1"></i> Back to Tickets</a>
+            </div>
+            <div class="d-flex align-items-center">
+                @{
+                    var badgeClass = Model.Status switch
+                    {
+                        TicketStatus.Open => "bg-success",
+                        TicketStatus.InProgress => "bg-warning text-dark",
+                        TicketStatus.Closed => "bg-secondary",
+                        _ => "bg-secondary"
+                    };
+                }
+                <span class="badge @badgeClass rounded-pill fs-6 px-3 py-2 me-3">@Model.Status</span>
+                
+                @if (Model.Status != TicketStatus.Closed)
+                {
+                    <form asp-action="Close" method="post">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button type="submit" class="btn btn-outline-danger rounded-pill px-4" onclick="return confirm('Close this ticket?');">Close Ticket</button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success bg-success bg-opacity-10 text-success border-success border-opacity-25 rounded-3 mb-4 flex-shrink-0">
+            <i class="bi bi-check-circle me-2"></i> @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <div class="row flex-grow-1 overflow-hidden">
+        <div class="col-12 col-lg-8 d-flex flex-column h-100">
+            <div class="glass-panel p-3 rounded-top-4 border-bottom border-secondary border-opacity-25 bg-dark bg-opacity-25">
+                <h5 class="fw-bold mb-0">@Model.Subject</h5>
+            </div>
+            
+            <div class="glass-panel flex-grow-1 p-4 overflow-auto bg-opacity-10" id="messagesList">
+
+                @if (messages != null)
+                {
+                    @foreach (var msg in messages)
+                    {
+                        bool isOwn = msg.SenderId == currentUserId;
+                        bool isAdmin = msg.SenderId != Model.UserId;
+                        
+                        <div class="d-flex mb-4 @(isOwn ? "justify-content-end" : "justify-content-start")">
+                            @if (!isOwn)
+                            {
+                                <div class="me-2 flex-shrink-0 mt-auto">
+                                    @if (!string.IsNullOrEmpty(msg.Sender?.Avatar))
+                                    {
+                                        <img src="@msg.Sender.Avatar" class="rounded-circle" width="32" height="32" alt="">
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 32px; height: 32px; font-size: 12px;">
+                                            @(msg.Sender?.FullName.Substring(0, 1) ?? "U")
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            
+                            <div style="max-width: 75%;">
+                                <div class="p-3 rounded-4 @(isOwn ? "bg-primary text-white" : "bg-dark text-light border border-secondary border-opacity-50")" style="@(isOwn ? "border-bottom-right-radius: 4px !important;" : "border-bottom-left-radius: 4px !important;")">
+                                    @msg.Content
+                                </div>
+                                <div class="small text-muted mt-1 @(isOwn ? "text-end" : "text-start")" style="font-size: 0.7rem;">
+                                    @if(!isOwn) { 
+                                        <span class="fw-bold me-1 text-info">@msg.Sender?.FullName (Admin)</span> 
+                                    }
+                                    @msg.SentAt.ToString("MMM dd, HH:mm")
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+            
+            @if (Model.Status != TicketStatus.Closed)
+            {
+                <div class="glass-panel p-3 rounded-bottom-4 border-top border-secondary border-opacity-25">
+                    <div class="input-group">
+                        <input type="text" id="messageInput" class="form-control bg-dark text-white border-secondary rounded-start-pill ps-4 py-3" placeholder="Type your reply here..." autocomplete="off">
+                        <button class="btn btn-primary rounded-end-pill px-4" type="button" id="sendBtn"><i class="bi bi-send-fill"></i></button>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="glass-panel p-3 rounded-bottom-4 border-top border-secondary border-opacity-25 text-center text-muted">
+                    This ticket is closed. You cannot send further replies.
+                </div>
+            }
+        </div>
+        
+        <div class="col-12 col-lg-4 mt-4 mt-lg-0 overflow-auto h-100">
+            <div class="glass-card rounded-4 p-4 mb-4">
+                <h5 class="fw-bold border-bottom border-secondary border-opacity-25 pb-2 mb-3">User Details</h5>
+                <div class="d-flex align-items-center mb-3">
+                    @if (!string.IsNullOrEmpty(Model.User.Avatar))
+                    {
+                        <img src="@Model.User.Avatar" class="rounded-circle me-3" width="48" height="48" alt="">
+                    }
+                    else
+                    {
+                        <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-3 text-white fw-bold" style="width: 48px; height: 48px; font-size: 18px;">
+                            @(Model.User.FullName.Substring(0, 1))
+                        </div>
+                    }
+                    <div>
+                        <div class="fw-bold">@Model.User.FullName</div>
+                        <div class="small text-muted">@Model.User.Email</div>
+                    </div>
+                </div>
+                
+                <a asp-controller="Admin" asp-action="Users" class="btn btn-sm btn-outline-secondary w-100 rounded-pill">View User Profile</a>
+            </div>
+            
+            <div class="glass-card rounded-4 p-4">
+                <h5 class="fw-bold border-bottom border-secondary border-opacity-25 pb-2 mb-3">Quick Responses</h5>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-sm btn-dark text-start border-secondary quick-reply-btn" data-reply="Hello! We are looking into this issue right now.">"Looking into it"</button>
+                    <button class="btn btn-sm btn-dark text-start border-secondary quick-reply-btn" data-reply="Please provide more details or screenshots.">"Need more details"</button>
+                    <button class="btn btn-sm btn-dark text-start border-secondary quick-reply-btn" data-reply="The issue has been resolved. We are closing this ticket.">"Resolved & Closing"</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="ticketId" value="@Model.Id" />
+<input type="hidden" id="currentUserId" value="@currentUserId" />
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.quick-reply-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const input = document.getElementById('messageInput');
+                if (input) {
+                    input.value = this.getAttribute('data-reply');
+                    input.focus();
+                }
+            });
+        });
+        
+        // SignalR implementation for tickets
+        const ticketId = document.getElementById("ticketId").value;
+        const currentUserId = document.getElementById("currentUserId").value;
+        const msgList = document.getElementById("messagesList");
+        
+        if (msgList) {
+            msgList.scrollTop = msgList.scrollHeight;
+        }
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/hubs/ticket")
+            .build();
+
+        connection.on("ReceiveTicketMessage", function (data) {
+            const isOwn = data.senderId === currentUserId;
+            
+            const div = document.createElement("div");
+            div.className = `d-flex mb-4 ${isOwn ? "justify-content-end" : "justify-content-start"}`;
+            
+            let avatarHtml = '';
+            let nameHtml = '';
+            if (!isOwn) {
+                if (data.senderAvatar) {
+                    avatarHtml = `<div class="me-2 flex-shrink-0 mt-auto"><img src="${data.senderAvatar}" class="rounded-circle" width="32" height="32" alt=""></div>`;
+                } else {
+                    const initial = data.senderName ? data.senderName.substring(0, 1) : "U";
+                    avatarHtml = `<div class="me-2 flex-shrink-0 mt-auto"><div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 32px; height: 32px; font-size: 12px;">${initial}</div></div>`;
+                }
+                nameHtml = `<span class="fw-bold me-1">${data.senderName}</span>`;
+            }
+            
+            const bubbleClass = isOwn ? "bg-primary text-white" : "bg-dark text-light border border-secondary border-opacity-50";
+            const radiusClass = isOwn ? "border-bottom-right-radius: 4px !important;" : "border-bottom-left-radius: 4px !important;";
+            const alignClass = isOwn ? "text-end" : "text-start";
+            
+            const date = new Date(data.sentAt);
+            const timeStr = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            div.innerHTML = `
+                ${avatarHtml}
+                <div style="max-width: 75%;">
+                    <div class="p-3 rounded-4 ${bubbleClass}" style="${radiusClass}">
+                        ${data.content.replace(/</g, "&lt;").replace(/>/g, "&gt;")}
+                    </div>
+                    <div class="small text-muted mt-1 ${alignClass}" style="font-size: 0.7rem;">
+                        ${nameHtml}
+                        ${timeStr}
+                    </div>
+                </div>
+            `;
+            
+            if (msgList) {
+                msgList.appendChild(div);
+                msgList.scrollTop = msgList.scrollHeight;
+            }
+        });
+
+        connection.start().then(function () {
+            connection.invoke("JoinTicket", parseInt(ticketId)).catch(err => console.error(err));
+        }).catch(err => console.error(err.toString()));
+
+        const sendBtn = document.getElementById("sendBtn");
+        if (sendBtn) {
+            sendBtn.addEventListener("click", function () {
+                const input = document.getElementById("messageInput");
+                const content = input.value.trim();
+                if (content === "") return;
+
+                connection.invoke("SendMessage", parseInt(ticketId), content)
+                    .then(() => { input.value = ""; })
+                    .catch(err => console.error(err.toString()));
+            });
+            
+            document.getElementById("messageInput").addEventListener("keypress", function (e) {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    sendBtn.click();
+                }
+            });
+        }
+    </script>
+}

@@ -1,0 +1,75 @@
+@using ServicesApp.Models.Entities
+@model List<Order>
+@{
+    ViewData["Title"] = "Manage Orders";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 fw-bold">Orders Management</h1>
+            <p class="text-muted">Oversee platform transactions and delivery progress</p>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success bg-success bg-opacity-10 text-success border-success border-opacity-25 rounded-3 mb-4">
+            <i class="bi bi-check-circle me-2"></i> @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <div class="glass-card rounded-4 p-4">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th class="border-secondary text-muted small py-3">Order ID</th>
+                        <th class="border-secondary text-muted small py-3">Service</th>
+                        <th class="border-secondary text-muted small py-3">Client / Executor</th>
+                        <th class="border-secondary text-muted small py-3">Amount</th>
+                        <th class="border-secondary text-muted small py-3">Status</th>
+                        <th class="border-secondary text-muted small py-3 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="border-top-0">
+                    @foreach (var order in Model)
+                    {
+                        <tr>
+                            <td class="border-secondary py-3 fw-bold">#@order.Id</td>
+                            <td class="border-secondary py-3 text-truncate" style="max-width: 200px;">@order.Service.Title</td>
+                            <td class="border-secondary py-3">
+                                <div class="small"><span class="text-muted">C:</span> @order.Client.FullName</div>
+                                <div class="small"><span class="text-muted">E:</span> @(order.Executor?.FullName ?? "Unassigned")</div>
+                            </td>
+                            <td class="border-secondary py-3 fw-bold text-success">$@order.TotalPrice.ToString("0.00")</td>
+                            <td class="border-secondary py-3">
+                                @{
+                                    var badgeClass = order.Status switch
+                                    {
+                                        OrderStatus.Pending => "bg-warning text-dark",
+                                        OrderStatus.InProgress => "bg-info text-dark",
+                                        OrderStatus.Delivered => "bg-primary",
+                                        OrderStatus.Completed => "bg-success",
+                                        OrderStatus.Cancelled => "bg-danger",
+                                        _ => "bg-secondary"
+                                    };
+                                }
+                                <span class="badge @badgeClass rounded-pill">@order.Status</span>
+                            </td>
+                            <td class="border-secondary py-3 text-end">
+                                <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-sm btn-outline-primary rounded-pill px-3">Manage</a>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="border-secondary py-4 text-center text-muted">No orders found.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

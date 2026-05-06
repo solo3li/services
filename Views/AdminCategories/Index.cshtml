@@ -1,0 +1,65 @@
+@using ServicesApp.Models.Entities
+@model List<Category>
+@{
+    ViewData["Title"] = "Manage Categories";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 fw-bold">Categories Management</h1>
+                <p class="text-muted">Create, edit, and organize service categories</p>
+            </div>
+            <a asp-action="Create" class="btn btn-primary rounded-pill px-4 glow-btn">
+                <i class="bi bi-plus-lg me-2"></i> Add Category
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success bg-success bg-opacity-10 text-success border-success border-opacity-25 rounded-3 mb-4">
+            <i class="bi bi-check-circle me-2"></i> @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <div class="glass-card rounded-4 p-4">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th class="border-secondary text-muted small py-3">Icon</th>
+                        <th class="border-secondary text-muted small py-3">Name</th>
+                        <th class="border-secondary text-muted small py-3">Slug</th>
+                        <th class="border-secondary text-muted small py-3">Order</th>
+                        <th class="border-secondary text-muted small py-3 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="border-top-0">
+                    @foreach (var cat in Model)
+                    {
+                        <tr>
+                            <td class="border-secondary py-3 fs-4">@cat.Icon</td>
+                            <td class="border-secondary py-3 fw-bold">@cat.Name</td>
+                            <td class="border-secondary py-3 text-muted">@cat.Slug</td>
+                            <td class="border-secondary py-3">@cat.SortOrder</td>
+                            <td class="border-secondary py-3 text-end">
+                                <a asp-action="Edit" asp-route-id="@cat.Id" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-2">Edit</a>
+                                <form asp-action="Delete" asp-route-id="@cat.Id" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="return confirm('Delete this category?');">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="border-secondary py-4 text-center text-muted">No categories found.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

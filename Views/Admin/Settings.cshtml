@@ -1,0 +1,74 @@
+@{
+    ViewData["Title"] = "Platform Settings";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 fw-bold">Platform Settings</h1>
+            <p class="text-muted">Configure execution, commissions, and base pricing</p>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success bg-success bg-opacity-10 text-success border-success border-opacity-25 rounded-3 mb-4">
+            <i class="bi bi-check-circle me-2"></i> @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-12 col-lg-8">
+            <div class="glass-card rounded-4 p-4">
+                <form asp-action="UpdateSettings" method="post">
+                    
+                    <h5 class="fw-bold mb-3 border-bottom border-secondary border-opacity-25 pb-2">Execution Settings</h5>
+                    
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-bold">Who can execute services?</label>
+                        <select name="whoCanExecute" class="form-select bg-dark text-white border-secondary">
+                            <option value="ApprovedExecutorsOnly" selected="@(ViewBag.WhoCanExecute == "ApprovedExecutorsOnly")">Approved Executors Only (Requires KYC)</option>
+                            <option value="Anyone" selected="@(ViewBag.WhoCanExecute == "Anyone")">Anyone (No KYC Required)</option>
+                        </select>
+                        <div class="form-text text-muted small mt-1">Controls whether users need to pass KYC verification to offer services.</div>
+                    </div>
+
+                    <h5 class="fw-bold mb-3 border-bottom border-secondary border-opacity-25 pb-2">Financial Settings</h5>
+                    
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-bold">Platform Commission (%)</label>
+                        <div class="input-group">
+                            <input type="number" name="platformCommission" class="form-control bg-dark text-white border-secondary" value="@ViewBag.PlatformCommission" min="0" max="100" required>
+                            <span class="input-group-text bg-dark text-muted border-secondary">%</span>
+                        </div>
+                        <div class="form-text text-muted small mt-1">The percentage fee the platform takes from completed orders.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-bold">Base Minimum Price ($)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark text-muted border-secondary">$</span>
+                            <input type="number" name="basePrice" class="form-control bg-dark text-white border-secondary" value="@ViewBag.BasePrice" min="1" step="0.01" required>
+                        </div>
+                        <div class="form-text text-muted small mt-1">The lowest allowable price for any service on the platform.</div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end mt-4 pt-3 border-top border-secondary border-opacity-25">
+                        <button type="submit" class="btn btn-primary rounded-pill px-5 glow-btn"><i class="bi bi-save me-2"></i> Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="col-12 col-lg-4 mt-4 mt-lg-0">
+            <div class="glass-card rounded-4 p-4 h-100">
+                <h5 class="fw-bold mb-3">Settings Info</h5>
+                <p class="text-muted small">These settings control the core financial and operational rules of the platform.</p>
+                <ul class="list-unstyled small text-muted">
+                    <li class="mb-3 d-flex"><i class="bi bi-info-circle text-primary me-2"></i> <span>Changing the commission only affects future orders.</span></li>
+                    <li class="mb-3 d-flex"><i class="bi bi-info-circle text-primary me-2"></i> <span>If you change "Who can execute" to "Anyone", current KYC requests will remain but won't be mandatory.</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

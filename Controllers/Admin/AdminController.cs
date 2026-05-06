@@ -128,4 +128,22 @@ public class AdminController : Controller
 
         return RedirectToAction(nameof(Users));
     }
+
+    public IActionResult Settings()
+    {
+        // Mocking settings since there's no DB entity for it in this prototype
+        ViewBag.PlatformCommission = 15;
+        ViewBag.WhoCanExecute = "ApprovedExecutorsOnly";
+        ViewBag.BasePrice = 5;
+        return View("~/Views/Admin/Settings.cshtml");
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult UpdateSettings(int platformCommission, string whoCanExecute, decimal basePrice)
+    {
+        // Here we would normally save this to a Settings table
+        TempData["SuccessMessage"] = "Platform settings updated successfully.";
+        return RedirectToAction(nameof(Settings));
+    }
 }
