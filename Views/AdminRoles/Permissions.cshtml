@@ -1,0 +1,50 @@
+@model ServicesApp.Controllers.Admin.RolePermissionsViewModel
+@{
+    ViewData["Title"] = $"Permissions for {Model.RoleName}";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="Index" class="text-primary text-decoration-none">Roles</a></li>
+                    <li class="breadcrumb-item active text-muted" aria-current="page">Permissions</li>
+                </ol>
+            </nav>
+            <h1 class="h3 fw-bold">Permissions: <span class="text-primary">@Model.RoleName</span></h1>
+            <p class="text-muted">Select the specific actions this role is allowed to perform</p>
+        </div>
+    </div>
+
+    <form asp-action="UpdatePermissions" method="post">
+        <input type="hidden" asp-for="RoleId" />
+        <input type="hidden" asp-for="RoleName" />
+
+        <div class="glass-card rounded-4 p-4 p-md-5">
+            <div class="row g-4">
+                @for (int i = 0; i < Model.Permissions.Count; i++)
+                {
+                    <div class="col-12 col-md-4 col-lg-3">
+                        <div class="p-3 rounded-3 bg-dark bg-opacity-50 border border-secondary border-opacity-25 h-100 d-flex align-items-center">
+                            <div class="form-check form-switch mb-0">
+                                <input type="hidden" asp-for="Permissions[i].Name" />
+                                <input class="form-check-input" type="checkbox" asp-for="Permissions[i].IsSelected" id="perm_@i">
+                                <label class="form-check-label text-white fw-medium" for="perm_@i">
+                                    @Model.Permissions[i].Name
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="mt-5 pt-4 border-top border-secondary border-opacity-25">
+                <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold glow-btn">
+                    <i class="bi bi-save me-2"></i> Save Permissions
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4 py-2 ms-2">Cancel</a>
+            </div>
+        </div>
+    </form>
+</div>

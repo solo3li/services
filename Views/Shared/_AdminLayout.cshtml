@@ -148,6 +148,12 @@
         <div class="small text-muted fw-bold mb-2 px-2 text-uppercase" style="letter-spacing: 1px;">Configuration</div>
         <ul class="nav nav-pills flex-column mt-auto mb-3">
             <li class="nav-item">
+                <a class="nav-link admin-nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "AdminRoles" ? "active" : "")" 
+                   asp-controller="AdminRoles" asp-action="Index">
+                    <i class="bi bi-shield-lock-fill me-2"></i> Roles & Permissions
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link admin-nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Settings" && ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" ? "active" : "")" 
                    asp-controller="Admin" asp-action="Settings">
                     <i class="bi bi-gear-fill me-2"></i> Settings

@@ -1,0 +1,84 @@
+@using Microsoft.AspNetCore.Identity
+@model List<IdentityRole>
+@{
+    ViewData["Title"] = "Roles Management";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 fw-bold">Roles & Permissions</h1>
+                <p class="text-muted">Manage system roles and their specific access permissions</p>
+            </div>
+            <button type="button" class="btn btn-primary rounded-pill px-4 glow-btn" data-bs-toggle="modal" data-bs-target="#createRoleModal">
+                <i class="bi bi-shield-plus me-2"></i> Create New Role
+            </button>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success bg-success bg-opacity-10 text-success border-success border-opacity-25 rounded-3 mb-4">
+            <i class="bi bi-check-circle me-2"></i> @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <div class="glass-card rounded-4 p-4">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th class="border-secondary text-muted small py-3">Role Name</th>
+                        <th class="border-secondary text-muted small py-3">ID</th>
+                        <th class="border-secondary text-muted small py-3 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="border-top-0">
+                    @foreach (var role in Model)
+                    {
+                        <tr>
+                            <td class="border-secondary py-3 fw-bold text-white">
+                                <i class="bi bi-shield-check text-primary me-2"></i> @role.Name
+                            </td>
+                            <td class="border-secondary py-3 text-muted small">@role.Id</td>
+                            <td class="border-secondary py-3 text-end">
+                                <a asp-action="Permissions" asp-route-roleId="@role.Id" class="btn btn-outline-info btn-sm rounded-pill px-3 me-2">
+                                    <i class="bi bi-key me-1"></i> Permissions
+                                </a>
+                                @if (role.Name != "Admin" && role.Name != "Student")
+                                {
+                                    <button class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="alert('Delete functionality can be added here.')">Delete</button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Create Role Modal -->
+<div class="modal fade" id="createRoleModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border-secondary rounded-4">
+            <form asp-action="Create" method="post">
+                <div class="modal-header border-secondary border-opacity-25">
+                    <h5 class="modal-title fw-bold">Create New Role</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold">Role Name</label>
+                        <input type="text" name="roleName" class="form-control bg-dark text-white border-secondary" required placeholder="e.g. Moderator">
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 glow-btn">Create Role</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
