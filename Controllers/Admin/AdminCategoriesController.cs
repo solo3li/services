@@ -16,12 +16,14 @@ public class AdminCategoriesController : Controller
         _db = db;
     }
 
+    [Authorize(Policy = "Categories.View")]
     public async Task<IActionResult> Index()
     {
         var categories = await _db.Categories.OrderBy(c => c.SortOrder).ToListAsync();
         return View(categories);
     }
 
+    [Authorize(Policy = "Categories.Create")]
     public IActionResult Create()
     {
         return View();
@@ -41,6 +43,7 @@ public class AdminCategoriesController : Controller
         return View(category);
     }
 
+    [Authorize(Policy = "Categories.Edit")]
     public async Task<IActionResult> Edit(int id)
     {
         var category = await _db.Categories.FindAsync(id);
@@ -65,6 +68,7 @@ public class AdminCategoriesController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "Categories.Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {

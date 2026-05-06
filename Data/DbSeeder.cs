@@ -17,10 +17,24 @@ public static class DbSeeder
 
         // Roles
         string[] roles = ["Admin", "Student", "Executor"];
-        foreach (var role in roles)
+        foreach (var roleName in roles)
         {
-            if (!await roleManager.RoleExistsAsync(role))
-                await roleManager.CreateAsync(new IdentityRole(role));
+            if (!await roleManager.RoleExistsAsync(roleName))
+                await roleManager.CreateAsync(new IdentityRole(roleName));
+        }
+
+        // Assign ALL permissions to Admin role
+        var adminRole = await roleManager.FindByNameAsync("Admin");
+        if (adminRole != null)
+        {
+            var existingClaims = await roleManager.GetClaimsAsync(adminRole);
+            foreach (var permission in Models.AppPermissions.All)
+            {
+                if (!existingClaims.Any(c => c.Type == "Permission" && c.Value == permission))
+                {
+                    await roleManager.AddClaimAsync(adminRole, new System.Security.Claims.Claim("Permission", permission));
+                }
+            }
         }
 
         // Admin user

@@ -15,6 +15,7 @@ public class AdminPaymentsController : Controller
         _db = db;
     }
 
+    [Authorize(Policy = "Payments.View")]
     public async Task<IActionResult> Index()
     {
         // For now, we get all orders that have a payment (simulate transactions)

@@ -17,6 +17,7 @@ public class AdminRolesController : Controller
         _roleManager = roleManager;
     }
 
+    [Authorize(Policy = "Roles.View")]
     public async Task<IActionResult> Index()
     {
         var roles = await _roleManager.Roles.ToListAsync();
@@ -24,6 +25,7 @@ public class AdminRolesController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "Roles.Manage")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(string roleName)
     {
@@ -35,6 +37,7 @@ public class AdminRolesController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    [Authorize(Policy = "Roles.Manage")]
     public async Task<IActionResult> Permissions(string roleId)
     {
         var role = await _roleManager.FindByIdAsync(roleId);
@@ -56,6 +59,7 @@ public class AdminRolesController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "Roles.Manage")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdatePermissions(RolePermissionsViewModel model)
     {

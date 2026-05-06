@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using ServicesApp.Data;
 using ServicesApp.Hubs;
 using ServicesApp.Models.Entities;
@@ -61,6 +62,10 @@ builder.Services.AddSession(options =>
 });
 
 builder.Services.AddHttpContextAccessor();
+
+// Permission-based Authorization
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, ServicesApp.Infrastructure.PermissionPolicyProvider>();
+builder.Services.AddScoped<IAuthorizationHandler, ServicesApp.Infrastructure.PermissionHandler>();
 
 var app = builder.Build();
 

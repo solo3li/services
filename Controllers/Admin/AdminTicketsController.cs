@@ -20,6 +20,7 @@ public class AdminTicketsController : Controller
         _userManager = userManager;
     }
 
+    [Authorize(Policy = "Tickets.View")]
     public async Task<IActionResult> Index()
     {
         var tickets = await _db.SupportTickets
@@ -29,6 +30,7 @@ public class AdminTicketsController : Controller
         return View(tickets);
     }
 
+    [Authorize(Policy = "Tickets.View")]
     public async Task<IActionResult> Details(int id)
     {
         var ticket = await _db.SupportTickets
@@ -47,6 +49,7 @@ public class AdminTicketsController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "Tickets.Close")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Close(int id)
     {

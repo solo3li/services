@@ -4,13 +4,30 @@ public static class AppPermissions
 {
     public static List<string> All = new()
     {
-        "Users.View", "Users.Manage",
-        "Services.View", "Services.Manage",
-        "Orders.View", "Orders.Manage",
-        "Categories.Manage",
-        "Settings.Edit",
-        "Payments.View",
-        "Tickets.Manage",
-        "Roles.Manage"
+        // Users
+        "Users.View", "Users.Create", "Users.Edit", "Users.Delete", "Users.ManageRoles", "Users.ToggleStatus",
+        
+        // KYC
+        "Kyc.View", "Kyc.Approve", "Kyc.Reject",
+        
+        // Categories
+        "Categories.View", "Categories.Create", "Categories.Edit", "Categories.Delete",
+        
+        // Services
+        "Services.View", "Services.Create", "Services.Edit", "Services.Delete", "Services.ToggleStatus",
+        
+        // Orders
+        "Orders.View", "Orders.Create", "Orders.Edit", "Orders.Delete", "Orders.UpdateStatus", "Orders.Dispute",
+        
+        // Payments
+        "Payments.View", "Payments.Refund",
+        
+        // Support
+        "Tickets.View", "Tickets.Reply", "Tickets.Close",
+        
+        // System
+        "Dashboard.View",
+        "Settings.View", "Settings.Edit",
+        "Roles.View", "Roles.Manage"
     };
 }

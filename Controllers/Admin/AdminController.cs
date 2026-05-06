@@ -22,6 +22,7 @@ public class AdminController : Controller
         _kycService = kycService;
     }
 
+    [Authorize(Policy = "Dashboard.View")]
     public async Task<IActionResult> Dashboard()
     {
         ViewBag.TotalUsers = await _db.Users.CountAsync();
@@ -39,6 +40,7 @@ public class AdminController : Controller
         return View("~/Views/Admin/Dashboard.cshtml", recentOrders);
     }
 
+    [Authorize(Policy = "Kyc.View")]
     public async Task<IActionResult> Kyc()
     {
         var pending = await _kycService.GetPendingAsync();
@@ -69,6 +71,7 @@ public class AdminController : Controller
         return RedirectToAction(nameof(Kyc));
     }
 
+    [Authorize(Policy = "Users.View")]
     public async Task<IActionResult> Users()
     {
         var users = await _db.Users.OrderByDescending(u => u.CreatedAt).ToListAsync();
@@ -76,6 +79,7 @@ public class AdminController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "Users.ToggleStatus")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ToggleUserStatus(string id)
     {
@@ -148,6 +152,7 @@ public class AdminController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "Users.ManageRoles")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateUserRole(string userId, string role, bool addToRole)
     {

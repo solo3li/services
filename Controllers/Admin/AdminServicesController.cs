@@ -15,6 +15,7 @@ public class AdminServicesController : Controller
         _db = db;
     }
 
+    [Authorize(Policy = "Services.View")]
     public async Task<IActionResult> Index()
     {
         var services = await _db.Services
@@ -26,6 +27,7 @@ public class AdminServicesController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "Services.ToggleStatus")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ToggleStatus(int id)
     {
@@ -40,6 +42,7 @@ public class AdminServicesController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "Services.Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {

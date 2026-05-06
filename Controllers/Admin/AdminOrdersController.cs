@@ -16,6 +16,7 @@ public class AdminOrdersController : Controller
         _db = db;
     }
 
+    [Authorize(Policy = "Orders.View")]
     public async Task<IActionResult> Index()
     {
         var orders = await _db.Orders
@@ -27,6 +28,7 @@ public class AdminOrdersController : Controller
         return View(orders);
     }
 
+    [Authorize(Policy = "Orders.View")]
     public async Task<IActionResult> Details(int id)
     {
         var order = await _db.Orders
@@ -41,6 +43,7 @@ public class AdminOrdersController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "Orders.UpdateStatus")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ChangeStatus(int id, OrderStatus newStatus)
     {
