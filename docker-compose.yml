@@ -1,0 +1,18 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:8080"
+    volumes:
+      - ./services.db:/app/services.db
+      - ./services.db-shm:/app/services.db-shm
+      - ./services.db-wal:/app/services.db-wal
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development # Set to Development for seeding if needed, or Production
+      - ConnectionStrings__DefaultConnection=Data Source=services.db
+    restart: always
+
+volumes:
+  db_data:
